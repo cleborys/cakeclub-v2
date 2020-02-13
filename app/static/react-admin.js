@@ -79,7 +79,7 @@ class App extends React.Component {
     super(props);
   }
 
-  handleNewGame(event) {
+  handleNewSession(event) {
     socket.emit("create_session", {});
     event.preventDefault();
   }
@@ -92,9 +92,7 @@ class App extends React.Component {
       <ErrorToast/>
       <ConnectionToast />
 
-      <div className="jumbotron">
-        <div> [info about upcoming bake] </div>
-      </div>
+      <button type="button" className="btn btn-primary" onClick={this.handleNewSession}>New Session</button>
       <hr/>
       <div className="jumbotron">
           <SessionTable sessions={[]}/>
@@ -196,48 +194,23 @@ class SessionTableActions extends React.Component {
     constructor(props) {
       super(props);
 
-      this.handleJoin = this.handleJoin.bind(this);
-      this.handleLeave = this.handleLeave.bind(this);
-      this.handleBecomeBaker = this.handleBecomeBaker.bind(this);
+      this.handleDelete = this.handleDelete.bind(this);
     }
 
-    handleJoin(event) {
-      socket.emit("join_session", this.props.session.session_id);
-      event.preventDefault();
-    }
-    handleLeave(event) {
-      socket.emit("leave_session", this.props.session.session_id);
-      event.preventDefault();
-    }
-    handleBecomeBaker(event) {
-      socket.emit("become_baker", this.props.session.session_id);
+    handleDelete(event) {
+      socket.emit("delete_session", this.props.session.session_id);
       event.preventDefault();
     }
 
     render() {
-      let joinLeaveButton;
-      if (this.props.session.i_am_participating) {
-        joinLeaveButton = (
-          <button className="btn btn-warning" onClick={this.handleLeave}> Leave </button>
-        );
-      } else {
-        joinLeaveButton = (
-          <button className="btn btn-default" onClick={this.handleJoin}> Join </button>
-        );
-      }
+      let deleteButton;
+      deleteButton = (
+          <button className="btn btn-warning" onClick={this.handleDelete}> Delete </button>
+      );
 
-      let bakeButton;
-      if (this.props.session.i_am_baking) {
-      }
-      else if (this.props.session.has_a_baker == false) {
-        bakeButton = (
-          <button className="btn btn-success" onClick={this.handleBecomeBaker}> Bake </button>
-        );
-      }
       return (
         <div className="btn-group">
-          {bakeButton}
-          {joinLeaveButton}
+          {deleteButton}
         </div>
       )
     }

@@ -15,6 +15,12 @@ def create():
     return new_clubsession
 
 
+def delete(session_id, user):
+    session = get_by_id(session_id)
+    db.session.delete(session)
+    db.session.commit()
+
+
 def join(session_id, user):
     clubsession = get_by_id(session_id)
     if user not in clubsession.participants:

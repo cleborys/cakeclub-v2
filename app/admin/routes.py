@@ -1,34 +1,25 @@
 from flask import render_template, url_for
-from app.lobby import blueprint
+from app.admin import blueprint
 from flask_socketio import emit
 from app import socketio
 from flask_login import current_user, login_required
 import app.clubsessions as clubsessions
-from app.errors.flashed import UnauthorisedError, FlashedError, flashed_errors_forwarded
 
-
-@blueprint.route("/lobby")
+@blueprint.route("/admin")
 @login_required
-def lobby():
-    return render_template("lobby.html")
+def admin():
+    return render_template("admin.html")
 
 
-@socketio.on("join_session")
-def join_session(session_id):
-    clubsessions.join(session_id, current_user)
+@socketio.on("create_session")
+def create_session(data):
+    new_session = clubsessions.create()
     broadcast_session_update()
 
 
-@socketio.on("become_baker")
-def become_baker(session_id):
-    clubsessions.join(session_id, current_user)
-    clubsessions.become_baker(session_id, current_user)
-    broadcast_session_update()
-
-
-@socketio.on("leave_session")
-def leave_session(session_id):
-    clubsessions.leave(session_id, current_user)
+@socketio.on("delete_session")
+def delete_session(session_id):
+    clubsessions.delete(session_id, current_user)
     broadcast_session_update()
 
 
@@ -52,7 +43,3 @@ def send_sessions():
         )
 
     emit("open_sessions", {"data": open_clubsessions})
-
-
-class NondescriptError(FlashedError):
-    user_description = "Something went wrong."
