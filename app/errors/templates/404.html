@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+  <h1>Not Found<h1>
+  <p>
+    We couldn't find what you were looking for. 
+    <a href="{{ url_for('lobby.lobby') }}">Back to safety.</a>
+  </p>
+{% endblock %}

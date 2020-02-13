@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+  <h1>Oops...<h1>
+  <p>
+    Something went terribly wrong.
+    <a href="{{ url_for('lobby.lobby') }}">Back to safety.</a>
+  </p>
+{% endblock %}

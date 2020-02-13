@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block app_content %}
+    <h1>Sign In</h1>
+    <div class="row">
+      <div class="col-md-4">
+        <h5> Use a throwaway account</h5>
+        <p>...with a randomly generated name? </p>
+        <a class="btn btn-default" 
+           href="{{ url_for('auth.guest_login')}}">
+          Sign in as guest
+        </a>
+      </div>
+      <hr class="hidden-md hidden-lg">
+      <div class="col-md-4">
+        <h5> Or come back as a recurrent user? </h5>
+        {{ wtf.quick_form(form) }}
+      </div>
+      <hr class="hidden-md hidden-lg">
+      <p>Don't have an account yet?  <a href="{{ url_for('auth.register') }}">Sign up!</a></p>
+      <p>Forgot your password? <a href="{{ url_for('auth.request_password_reset') }}">Reset!</a></p>
+    </div>
+
+{% endblock %}
