@@ -108,12 +108,14 @@ def create_app(config_object=DevelopmentConfig):
     from app.auth import blueprint as auth_blueprint
     from app.lobby import blueprint as lobby_blueprint
     from app.admin import blueprint as admin_blueprint
+    from app.members import blueprint as members_blueprint
 
     app.register_blueprint(main_blueprint)
     app.register_blueprint(error_blueprint)
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
     app.register_blueprint(lobby_blueprint)
     app.register_blueprint(admin_blueprint)
+    app.register_blueprint(members_blueprint)
 
     from app import models
 

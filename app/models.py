@@ -128,12 +128,12 @@ class UserSchema(ma.ModelSchema):
         ClubSessionSchema,
         default=[],
         many=True,
-        only=("session_id", "start_timestamp"),
+        only=("session_id", "date"),
     )
 
     sessions = ma.Nested(
         ClubSessionSchema,
         default=[],
         many=True,
-        only=("session_id", "start_timestamp"),
+        only=("session_id", "date"),
     )

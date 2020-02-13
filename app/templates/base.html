@@ -33,6 +33,7 @@
                 <ul class="nav navbar-nav">
                     <li><a href="{{ url_for('lobby.lobby') }}">Lobby</a></li>
                     <li><a href="{{ url_for('admin.admin') }}">Admin</a></li>
+                    <li><a href="{{ url_for('members.members') }}">Members</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_anonymous %}
