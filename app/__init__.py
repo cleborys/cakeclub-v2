@@ -74,7 +74,7 @@ def create_app(config_object=DevelopmentConfig):
             if not os.path.exists("logs"):
                 os.mkdir("logs")
             file_handler = RotatingFileHandler(
-                "logs/quantenquartett.log", maxBytes=10_000, backupCount=5
+                "logs/cakeclub.log", maxBytes=10_000, backupCount=5
             )
             file_handler.setFormatter(
                 logging.Formatter(
@@ -90,9 +90,9 @@ def create_app(config_object=DevelopmentConfig):
         if app.config["MAIL_SERVER"]:
             mail_handler = SMTPHandler(
                 mailhost=(app.config["MAIL_SERVER"], app.config["MAIL_PORT"]),
-                fromaddr="no-reply@quantenquartett.com",
+                fromaddr="no-reply@cakeclub.com",
                 toaddrs=[app.config["ADMIN_EMAIL"]],
-                subject="Quantenquartett Error Report",
+                subject="Cakeclub Error Report",
                 credentials=(
                     app.config["MAIL_USERNAME"],
                     app.config["MAIL_PASSWORD"],
@@ -109,6 +109,7 @@ def create_app(config_object=DevelopmentConfig):
     from app.lobby import blueprint as lobby_blueprint
     from app.admin import blueprint as admin_blueprint
     from app.members import blueprint as members_blueprint
+    from app.automail import blueprint as automail_blueprint
 
     app.register_blueprint(main_blueprint)
     app.register_blueprint(error_blueprint)
@@ -116,6 +117,7 @@ def create_app(config_object=DevelopmentConfig):
     app.register_blueprint(lobby_blueprint)
     app.register_blueprint(admin_blueprint)
     app.register_blueprint(members_blueprint)
+    app.register_blueprint(automail_blueprint)
 
     from app import models
 
