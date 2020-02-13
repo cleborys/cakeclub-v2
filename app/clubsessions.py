@@ -1,10 +1,13 @@
-from app.models import ClubSession, ClubSessionSchema
+from app.models import ClubSession, ClubSessionSchema, User
 from app import db
 
 
 def create():
     schema = ClubSessionSchema()
     new_clubsession = schema.load(dict(), session=db.session)
+
+    active_users = User.query.filter(User.is_active == True).all()
+    new_clubsession.participants.extend(active_users)
 
     db.session.add(new_clubsession)
     db.session.commit()

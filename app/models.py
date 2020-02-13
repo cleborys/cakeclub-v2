@@ -52,6 +52,11 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return self.user_id  # pragma: no cover
 
+    def get_quota(self):
+        baked = self.baked_offset + len(self.baker_sessions)
+        eaten = self.eaten_offset + len(self.sessions)
+        return baked / min(eaten, 1)
+
     def get_password_reset_token(self, expiry_time=600):
         return jwt.encode(
             {"reset_password": self.user_id, "exp": time() + expiry_time},
