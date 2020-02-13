@@ -133,7 +133,7 @@ class MemberTable extends React.Component{
                 </tr></thead>
                 <tbody>
                     {this.state.users.map((user) =>
-                        <MemberTableRow key={user.user_id} user={user} />
+                        <MemberTableRow key={user.username} user={user} />
                     ) }
                 </tbody>
             </table>

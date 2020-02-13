@@ -1,5 +1,6 @@
 from app.models import ClubSession, ClubSessionSchema, User
 from app import db
+import datetime
 
 
 def create():
@@ -47,11 +48,14 @@ def leave(session_id, user):
     db.session.commit()
 
 
-def read_all():
-    query = ClubSession.query.order_by(ClubSession.date)
-    lobbies = query.all()
+def read_all(only_future=True):
+    query = ClubSession.query
+    if only_future:
+        yesterday = datetime.date.today() - datetime.timedelta(days=1)
+        query = query.filter(ClubSession.date >= yesterday)
+    sessions = query.order_by(ClubSession.date).all()
     session_schema = ClubSessionSchema(many=True)
-    return session_schema.dump(lobbies)
+    return session_schema.dump(sessions)
 
 
 def get_by_id(session_id, error_if_not_found=False):

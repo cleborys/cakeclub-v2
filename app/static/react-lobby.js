@@ -93,14 +93,70 @@ class App extends React.Component {
       <ConnectionToast />
 
       <div className="jumbotron">
-        <div> [info about upcoming bake] </div>
+        <BakeCard sessions={[]}/>
       </div>
       <hr/>
       <div className="jumbotron">
-          <SessionTable sessions={[]}/>
+        <SessionTable sessions={[]}/>
       </div>
     </div>
     )
+  }
+}
+
+class BakeCard extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state = {sessions: []};
+  }
+
+ componentDidMount() {
+      socket.on("open_sessions", (msg) => 
+        {
+          let baking_sessions;
+          baking_sessions = msg.data.filter(session => session.i_am_baking)
+          console.log("baking")
+          console.log(baking_sessions)
+        this.setState(previousState => ({
+              sessions: baking_sessions
+          }))
+      });
+  }
+
+  render() {
+
+    let content;
+    if (this.state.sessions.length === 0){
+      content = <div> You have no upcoming baking sessions. Pick one below! </div>
+    } else {
+      content = (
+        <div>
+          <p> Be prepared! Here are your upcoming baking sessions: </p>
+          <table className="table table-hover table-sm">
+              <thead><tr>
+                  <th className="w-10">Date</th>
+                  <th className="w-10">Baker</th>
+                  <th className="w-55">Participants</th>
+                  <th className="w-25">Actions</th>
+              </tr></thead>
+              <tbody>
+                  {this.state.sessions.map((session) =>
+                      <SessionTableRow key={session.session_id} session={session} />
+                  ) }
+              </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    return (
+        <div className="card border-danger h-100">
+          <div className="card-body d-flex flex-column justify-content-center">
+              <h4 className="card-title text-primary"> Upcoming baking sessions</h4>
+              {content}
+          </div>
+        </div>
+    );
   }
 }
 
