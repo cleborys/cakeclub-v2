@@ -79,8 +79,8 @@ class App extends React.Component {
     super(props);
   }
 
-  handleNewSession(event) {
-    socket.emit("create_session", {});
+  handleNextSession(event) {
+    socket.emit("create_next_session", {});
     event.preventDefault();
   }
 
@@ -92,14 +92,84 @@ class App extends React.Component {
       <ErrorToast/>
       <ConnectionToast />
 
-      <button type="button" className="btn btn-primary" onClick={this.handleNewSession}>New Session</button>
+      <div className="btn-group">
+        <a type="button" className="btn btn-primary" data-toggle="modal" data-target="#SessionCreationModal">Create Custom Session</a>
+        <a type="button" className="btn btn-primary" onClick={this.handleNextSession}>Create Next Session</a>
+      </div>
       <hr/>
       <div className="jumbotron">
           <SessionTable sessions={[]}/>
       </div>
+
+      <SessionCreationModal />
+
     </div>
     )
   }
+}
+
+class SessionCreationModal extends React.Component {
+    constructor(props) {
+      super(props);
+
+      this.state = {date: ""};
+      this.handleSubmit = this.handleSubmit.bind(this);
+      this.changeDate = this.changeDate.bind(this);
+
+    }
+
+    changeDate(event) {
+      this.setState({date: event.target.value});
+    }
+
+    handleSubmit(event) {
+      socket.emit("create_session", this.state);
+    }
+
+    render() {
+      return (
+        <div className="modal fade" id="SessionCreationModal" tabIndex="-1" role="dialog" >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="SessionCreationModalLabel">New Session</h5>
+                <button type="button" className="close" data-dismiss="modal" >
+                  <span >&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <SessionCreationForm onDateChange={this.changeDate}/>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-dismiss="modal">
+                  Close</button>
+                <button type="button" className="btn btn-primary" onClick={this.handleSubmit}>
+                  Create Session</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+}
+
+class SessionCreationForm extends React.Component {
+    constructor(props) {
+      super(props);
+    }
+
+
+    render() {
+      return (
+        <form onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <input type="date" className="form-control" id="inputSessionDate" placeholder="Date of next session" onChange={this.props.onDateChange}/>
+          </div>
+          <div className="form-group">
+          </div>
+        </form>
+      )
+    }
 }
 
 class SessionTable extends React.Component{

@@ -90,6 +90,4 @@ def reset_password(token):
         flash("You successfully reset your password.")
         return redirect(url_for("auth.login"))
 
-    return render_template(
-        "reset_password.html", title="Reset My Password", form=form
-    )
+    return render_template("reset_password.html", title="Reset My Password", form=form)

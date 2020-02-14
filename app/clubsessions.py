@@ -1,19 +1,32 @@
 from app.models import ClubSession, ClubSessionSchema, User
 from app import db
+from app.errors.flashed import FlashedError
+
 import datetime
 
 
-def create():
+def create(date=None):
     schema = ClubSessionSchema()
     new_clubsession = schema.load(dict(), session=db.session)
 
     active_users = User.query.filter(User.is_active == True).all()
     new_clubsession.participants.extend(active_users)
 
+    if date is not None:
+        new_clubsession.date = date
+
     db.session.add(new_clubsession)
     db.session.commit()
 
     return new_clubsession
+
+
+def create_next_session():
+    last_session = _get_most_future_scheduled_session()
+    if last_session is None:
+        raise NoLastSessionError
+    next_date = last_session.date + datetime.timedelta(days=7)
+    create(date=next_date)
 
 
 def delete(session_id, user):
@@ -64,3 +77,13 @@ def get_by_id(session_id, error_if_not_found=False):
         return query.one()
     else:
         return query.one_or_none()
+
+
+def _get_most_future_scheduled_session():
+    today = datetime.date.today()
+    query = ClubSession.query.filter(ClubSession.date >= today)
+    return query.order_by(ClubSession.date.desc()).first()
+
+
+class NoLastSessionError(FlashedError):
+    user_description: "Did not find a session in the future."

@@ -8,7 +8,5 @@ def send_password_reset_email(user):
         "Cakeclub: Reset Your Password",
         current_app.config["ADMIN_EMAIL"],
         recipients=[user.email],
-        body=render_template(
-            "email/password_reset.txt", user=user, token=token
-        ),
+        body=render_template("email/password_reset.txt", user=user, token=token),
     )

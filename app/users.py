@@ -40,8 +40,10 @@ def get_user_by_email(email):
 def get_user_by_id(user_id):
     return User.query.filter(User.user_id == user_id).one_or_none()
 
+
 def verify_password_reset_token(token):
     return User.verify_password_reset_token(token)
+
 
 def read_all():
     users = User.query.all()

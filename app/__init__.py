@@ -93,10 +93,7 @@ def create_app(config_object=DevelopmentConfig):
                 fromaddr="no-reply@cakeclub.com",
                 toaddrs=[app.config["ADMIN_EMAIL"]],
                 subject="Cakeclub Error Report",
-                credentials=(
-                    app.config["MAIL_USERNAME"],
-                    app.config["MAIL_PASSWORD"],
-                ),
+                credentials=(app.config["MAIL_USERNAME"], app.config["MAIL_PASSWORD"]),
                 secure=(),
             )
             mail_handler.setLevel(logging.ERROR)

@@ -35,7 +35,6 @@ class User(UserMixin, db.Model):
     baked_offset = db.Column(db.Integer, default=0)
     eaten_offset = db.Column(db.Integer, default=0)
 
-
     baker_sessions = db.relationship(
         "ClubSession",
         secondary=baker_membership,
@@ -49,9 +48,7 @@ class User(UserMixin, db.Model):
     )
 
     def __repr__(self):
-        return (
-            f"<User {self.username} with id {self.user_id}>"
-        )  # pragma: no cover
+        return f"<User {self.username} with id {self.user_id}>"  # pragma: no cover
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -64,7 +61,9 @@ class User(UserMixin, db.Model):
 
     def next_bakeday(self):
         today = date.today()
-        future_sessions = [session for session in self.baker_sessions if session.date > today]
+        future_sessions = [
+            session for session in self.baker_sessions if session.date > today
+        ]
         if not future_sessions:
             return None
         future_sessions.sort(key=lambda x: x.date)
@@ -105,8 +104,7 @@ class ClubSession(db.Model):
 
     def __repr__(self):
         return (
-            f"<ClubSession with id {self.lobby_id}"
-            f"hosted by {self.host.username}>"
+            f"<ClubSession with id {self.lobby_id}" f"hosted by {self.host.username}>"
         )  # pragma: no cover
 
     def needs_bakers(self):
@@ -134,15 +132,9 @@ class UserSchema(ma.ModelSchema):
         sqla_session = db.session
 
     baker_sessions = ma.Nested(
-        ClubSessionSchema,
-        default=[],
-        many=True,
-        only=("session_id", "date"),
+        ClubSessionSchema, default=[], many=True, only=("session_id", "date")
     )
 
     sessions = ma.Nested(
-        ClubSessionSchema,
-        default=[],
-        many=True,
-        only=("session_id", "date"),
+        ClubSessionSchema, default=[], many=True, only=("session_id", "date")
     )
