@@ -1,0 +1,15 @@
+Dear {{ user.username }},
+
+It's cake day!
+As usual, you will find cake on the fourth floor at 15:00.
+Today's secret phrase is {{ secret_phrase }}.
+
+{% if next_bakeday %}Please note that your next scheduled bakeday is on {{ next_bakeday() }}.
+If you cannot attend that day, feel free to register your absence on the
+website, but please try to find a replacement baker in due time.
+{% else %}You have not yet registered for your next bakeday!
+Please check out the website and choose one.{% endif %}
+
+Kindest regards,
+The Impartial Overlord
+(on behalf of the Cake Club)

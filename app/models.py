@@ -52,10 +52,13 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return self.user_id  # pragma: no cover
 
-    def get_quota(self):
-        baked = self.baked_offset + len(self.baker_sessions)
-        eaten = self.eaten_offset + len(self.sessions)
-        return baked / min(eaten, 1)
+    def next_bakeday(self):
+        today = date.today()
+        future_sessions = [session for session in self.baker_sessions if session.date > today]
+        if not future_sessions:
+            return None
+        future_sessions.sort(key=lambda x: x.date)
+        return future_sessions[0]
 
     def get_password_reset_token(self, expiry_time=600):
         return jwt.encode(
