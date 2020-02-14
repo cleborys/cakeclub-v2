@@ -139,7 +139,7 @@ class SessionTable extends React.Component{
             <table className="table table-hover table-sm">
                 <thead><tr>
                     <th className="w-10">Date</th>
-                    <th className="w-10">Baker</th>
+                    <th className="w-10">Bakers</th>
                     <th className="w-55">Participants</th>
                     <th className="w-25">Actions</th>
                 </tr></thead>
@@ -165,11 +165,9 @@ class SessionTableRow extends React.Component {
       let participants;
       participants = this.props.session.participants.length;
 
-      let baker;
-      if (this.props.session.baker === null) {
-        baker = <div> Missing a baker! </div>
-      } else {
-        baker = <div> {this.props.session.baker.username} </div>
+      var baker_names = this.props.session.bakers.map(user => user.username);
+      if (this.props.session.bakers.length < this.props.session.max_bakers) {
+        baker_names.push("Missing a baker!")
       }
 
 
@@ -177,12 +175,15 @@ class SessionTableRow extends React.Component {
         {intersperse(this.props.session.participants.map(user => user.username),
           ", ") }
       </div>;
-      console.log(this.props.session);
+
+      var bakers = <div>
+        {intersperse(baker_names, ", ") }
+      </div>;
 
       return (
         <tr>
           <td> {this.props.session.date} </td>
-          <td> {baker} </td>
+          <td> {bakers} </td>
           <td> Expecting {participants} attendees.</td>
           <td> <SessionTableActions session={this.props.session} /> </td>
         </tr>

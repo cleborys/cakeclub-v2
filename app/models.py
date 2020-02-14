@@ -14,6 +14,12 @@ clubsession_membership = db.Table(
     db.Column("session_id", db.Integer, db.ForeignKey("club_session.session_id")),
 )
 
+baker_membership = db.Table(
+    "baker_membership",
+    db.Column("user_id", db.Integer, db.ForeignKey("user.user_id")),
+    db.Column("session_id", db.Integer, db.ForeignKey("club_session.session_id")),
+)
+
 
 class User(UserMixin, db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
@@ -30,7 +36,11 @@ class User(UserMixin, db.Model):
     eaten_offset = db.Column(db.Integer, default=0)
 
 
-    baker_sessions = db.relationship("ClubSession", backref="baker", lazy="dynamic")
+    baker_sessions = db.relationship(
+        "ClubSession",
+        secondary=baker_membership,
+        backref=db.backref("bakers", lazy="dynamic"),
+    )
 
     sessions = db.relationship(
         "ClubSession",
@@ -90,7 +100,8 @@ class ClubSession(db.Model):
     timestamp = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
-    baker_id = db.Column(db.Integer, db.ForeignKey("user.user_id"))
+
+    max_bakers = db.Column(db.Integer, default=2)
 
     def __repr__(self):
         return (
@@ -98,12 +109,8 @@ class ClubSession(db.Model):
             f"hosted by {self.host.username}>"
         )  # pragma: no cover
 
-    def is_full(self):
-        return len(self.members.all()) >= self.max_members
-
-    def close(self):
-        self.is_open = False
-
+    def needs_bakers(self):
+        return len(self.bakers.all()) < self.max_bakers
 
 
 class FakeUserSchema(ma.ModelSchema):
@@ -116,8 +123,7 @@ class ClubSessionSchema(ma.ModelSchema):
         model = ClubSession
         sqla_session = db.session
 
-    baker = ma.Nested(FakeUserSchema, default=None)
-
+    bakers = ma.Nested(FakeUserSchema, default=[], many=True)
     participants = ma.Nested(FakeUserSchema, default=[], many=True)
 
 

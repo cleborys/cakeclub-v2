@@ -32,7 +32,7 @@ def join(session_id, user):
 
 def become_baker(session_id, user):
     clubsession = get_by_id(session_id)
-    if clubsession.baker_id is None:
+    if clubsession.needs_bakers():
         user.baker_sessions.append(clubsession)
 
     db.session.commit()

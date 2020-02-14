@@ -17,9 +17,8 @@ def send_session_reminder_email(user, phrase):
         subject="Cakeclub: session reminder",
         sender=current_app.config["ADMIN_EMAIL"],
         recipients=[current_app.config["ADMIN_EMAIL"]],
-        next_bakeday = user.next_bakeday()
         body=render_template(
             "email/session_reminder.txt", user=user, secret_phrase=phrase,
-            next_bakeday=next_bakeday,
+            next_bakeday=user.next_bakeday(),
         ),
     )

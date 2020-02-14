@@ -45,9 +45,9 @@ def send_sessions():
             {
                 "i_am_participating": current_user.user_id
                 in map(lambda user_dict: user_dict["user_id"], session["participants"]),
-                "i_am_baking": session["baker"]
-                and current_user.user_id == session["baker"]["user_id"],
-                "has_a_baker": session["baker"] is not None,
+                "i_am_baking": current_user.user_id in [x["user_id"] for x in
+                    session["bakers"]],
+                "has_a_baker": len(session["bakers"]) > 0,
             }
         )
 

@@ -24,7 +24,7 @@ def send_session_reminder(token):
 
     users = set()
     for session in target_sessions:
-        if session.baker is not None:
+        if session.bakers:
             users |= set(session.participants)
         else:
             clubsessions.delete(session.session_id)
