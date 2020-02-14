@@ -219,30 +219,39 @@ class SessionTableRow extends React.Component {
       super(props);
     }
 
-    render() {
-      let participants;
-      participants = this.props.session.participants.length;
+    componentDidMount() {
+        $('[data-toggle="popover"]').popover({
+          container: "body",
+          trigger: "focus",
+          html: true,
+        });
+    }
 
+    render() {
       var baker_names = this.props.session.bakers.map(user => user.username);
       if (this.props.session.bakers.length < this.props.session.max_bakers) {
-        baker_names.push("Missing a baker!")
+        baker_names.push(<span key="1" className="label label-danger">Missing a baker!</span>)
       }
 
 
-      var members = <div>
-        {intersperse(this.props.session.participants.map(user => user.username),
-          ", ") }
-      </div>;
+      var member_list = this.props.session.participants.map(user => 
+          "<div>" + user.username + "</div>"
+      ).join("");
 
       var bakers = <div>
         {intersperse(baker_names, ", ") }
       </div>;
 
+
+      var participants = <a tabIndex="0" data-toggle="popover" data-placement="bottom" data-content={member_list} >
+        {this.props.session.participants.length}
+      </a>;
+
       return (
         <tr>
           <td> {this.props.session.date} </td>
           <td> {bakers} </td>
-          <td> Expecting {participants} attendees.</td>
+          <td> Expecting {participants}.</td>
           <td> <SessionTableActions session={this.props.session} /> </td>
         </tr>
       );
