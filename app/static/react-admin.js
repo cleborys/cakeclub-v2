@@ -95,6 +95,7 @@ class App extends React.Component {
       <div className="btn-group">
         <a type="button" className="btn btn-primary" data-toggle="modal" data-target="#SessionCreationModal">Create Custom Session</a>
         <a type="button" className="btn btn-primary" onClick={this.handleNextSession}>Create Next Session</a>
+        <a type="button" className="btn btn-primary" data-toggle="modal" data-target="#UserCreationModal">Create User</a>
       </div>
       <hr/>
       <div className="jumbotron">
@@ -102,10 +103,111 @@ class App extends React.Component {
       </div>
 
       <SessionCreationModal />
+      <UserCreationModal />
 
     </div>
     )
   }
+}
+
+class UserCreationModal extends React.Component {
+    constructor(props) {
+      super(props);
+
+      this.state = {eaten_offset: 0, baked_offset: 0, future: true};
+      this.handleSubmit = this.handleSubmit.bind(this);
+      this.changeName = this.changeName.bind(this);
+      this.changeMail = this.changeMail.bind(this);
+      this.changeEaten = this.changeEaten.bind(this);
+      this.changeBaked = this.changeBaked.bind(this);
+      this.changeFuture = this.changeFuture.bind(this);
+      this.changePassword = this.changePassword.bind(this);
+    }
+
+    changeName(event) {
+      this.setState({username: event.target.value});
+    }
+    changeMail(event) {
+      this.setState({email: event.target.value});
+    }
+    changeEaten(event) {
+      this.setState({eaten_offset: event.target.value});
+    }
+    changeBaked(event) {
+      this.setState({baked_offset: event.target.value});
+    }
+    changeFuture(event) {
+      this.setState({future: event.target.value});
+    }
+    changePassword(event) {
+      this.setState({password: event.target.value});
+    }
+
+    handleSubmit(event) {
+      socket.emit("create_user", this.state);
+    }
+
+    render() {
+      return (
+        <div className="modal fade" id="UserCreationModal" tabIndex="-1" role="dialog" >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="UserCreationModalLabel">New User</h5>
+                <button type="button" className="close" data-dismiss="modal" >
+                  <span >&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <UserCreationForm 
+                  onNameChange={this.changeName}
+                  onMailChange={this.changeMail}
+                  onEatenChange={this.changeEaten}
+                  onBakedChange={this.changeBaked}
+                  onFutureChange={this.changeFuture}
+                  onPasswordChange={this.changePassword}
+                />
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-dismiss="modal">
+                  Close</button>
+                <button type="button" className="btn btn-primary" onClick={this.handleSubmit}>
+                  Create User</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+}
+
+class UserCreationForm extends React.Component {
+    constructor(props) {
+      super(props);
+    }
+
+
+    render() {
+      return (
+        <form onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <input type="text" className="form-control" id="inputUserName" placeholder="Name" onChange={this.props.onNameChange}/>
+            <input type="text" className="form-control" id="inputUserMail" placeholder="Email" onChange={this.props.onMailChange}/>
+            <input type="text" className="form-control" id="inputUserEOffset" placeholder="Number of cakes already eaten" onChange={this.props.onEatenChange}/>
+            <input type="text" className="form-control" id="inputUserBOffset" placeholder="Number of cakes already baked" onChange={this.props.onBakedChange}/>
+            <div className="form-check">
+              <input type="checkbox" className="form-check-input" id="inputUserFuture" 
+                placeholder="Add to future sessions" onChange={this.props.onFutureChange}/>
+              <label className="form-check-label" htmlFor="inputUserFuture">
+                Add to future sessions </label>
+            </div>
+            <input type="text" className="form-control" id="inputUserPassword" placeholder="Password" onChange={this.props.onPasswordChange}/>
+          </div>
+          <div className="form-group">
+          </div>
+        </form>
+      )
+    }
 }
 
 class SessionCreationModal extends React.Component {

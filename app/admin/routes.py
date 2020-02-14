@@ -4,9 +4,11 @@ from flask_socketio import emit
 from app import socketio
 from flask_login import current_user, login_required
 import app.clubsessions as clubsessions
+import app.users as users_module
 import app.lobby.routes as lobbyroutes
 from app.errors.flashed import FlashedError, flashed_errors_forwarded
 
+from sqlalchemy.exc import SQLAlchemyError
 import datetime
 
 
@@ -14,6 +16,27 @@ import datetime
 @login_required
 def admin():
     return render_template("admin.html")
+
+
+@socketio.on("create_user")
+@flashed_errors_forwarded
+def create_user(data):
+    user_data = {
+            "username": data["username"],
+            "email": data["email"],
+            "eaten_offset": int(data.get("eaten_offset", 0)),
+            "baked_offset": int(data.get("baked_offset", 0)),
+            }
+    try:
+        new_user = users_module.create(user_data, data["password"])
+    except SQLAlchemyError:
+        raise DatabaseError
+
+    if data.get("future"):
+        future_sessions = clubsessions.read_all(only_future=True)
+        for session in future_sessions:
+            clubsessions.join(session["session_id"], new_user)
+
 
 
 @socketio.on("create_session")
@@ -53,3 +76,6 @@ def send_sessions():
 
 class InvalidDateError(FlashedError):
     user_description = "You can only create sessions in the future."
+
+class DatabaseError(FlashedError):
+    user_description = "Your request upset the database."

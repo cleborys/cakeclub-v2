@@ -157,7 +157,7 @@ class MemberTableRow extends React.Component {
       nbr_baked = this.props.user.baked
 
       let quota;
-      quota = this.props.user.quota
+      quota = Math.round(this.props.user.quota * 1000) / 1000
 
       return (
         <tr>
