@@ -1,3 +1,4 @@
+from flask import current_app
 from app.automail import blueprint
 from app.automail import reminders
 from app.models import ClubSession
@@ -9,8 +10,10 @@ import username_generator
 BAKE_REMINDER_ADVANCE = 3
 
 
-@blueprint.route("/bakereminder/<string:token>", methods=["GET"])
+@blueprint.route("/api/bakereminder/<string:token>", methods=["GET"])
 def send_bake_reminder(token):
+    if token != current_app.config["ADMIN_KEY"]:
+        return "authorization invalid"
     target_sessions = get_sessions_in_n_days(BAKE_REMINDER_ADVANCE)
     for session in target_sessions:
         reminders.send_bake_reminder_email(session)
@@ -18,8 +21,10 @@ def send_bake_reminder(token):
     return f"sent bake reminders for {len(target_sessions)} sessions."
 
 
-@blueprint.route("/sessionreminder/<string:token>", methods=["GET"])
+@blueprint.route("/api/sessionreminder/<string:token>", methods=["GET"])
 def send_session_reminder(token):
+    if token != current_app.config["ADMIN_KEY"]:
+        return "authorization invalid"
     target_sessions = get_sessions_in_n_days(0)
     secret_phrase = username_generator.get_uname(3, 64, False)
 

@@ -1,4 +1,4 @@
-from flask import render_template, url_for
+from flask import render_template, url_for, current_app
 from app.admin import blueprint
 from flask_socketio import emit
 from app import socketio
@@ -6,6 +6,7 @@ from flask_login import current_user, login_required
 import app.clubsessions as clubsessions
 import app.users as users_module
 import app.lobby.routes as lobbyroutes
+from app.email import send_email
 from app.errors.flashed import FlashedError, flashed_errors_forwarded
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -22,11 +23,11 @@ def admin():
 @flashed_errors_forwarded
 def create_user(data):
     user_data = {
-            "username": data["username"],
-            "email": data["email"],
-            "eaten_offset": int(data.get("eaten_offset", 0)),
-            "baked_offset": int(data.get("baked_offset", 0)),
-            }
+        "username": data["username"],
+        "email": data["email"],
+        "eaten_offset": int(data.get("eaten_offset", 0)),
+        "baked_offset": int(data.get("baked_offset", 0)),
+    }
     try:
         new_user = users_module.create(user_data, data["password"])
     except SQLAlchemyError:
@@ -37,6 +38,15 @@ def create_user(data):
         for session in future_sessions:
             clubsessions.join(session["session_id"], new_user)
 
+    if data.get("send_welcome_email") is not False:
+        send_email(
+            "Your Cakeclub Account",
+            current_app.config["ADMIN_EMAIL"],
+            recipients=[new_user.email],
+            body=render_template(
+                "email/welcome.txt", user=new_user, password=data["password"]
+            ),
+        )
 
 
 @socketio.on("create_session")
@@ -76,6 +86,7 @@ def send_sessions():
 
 class InvalidDateError(FlashedError):
     user_description = "You can only create sessions in the future."
+
 
 class DatabaseError(FlashedError):
     user_description = "Your request upset the database."

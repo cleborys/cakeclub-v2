@@ -30,12 +30,14 @@ class Config:
 
 class DevelopmentConfig(Config):
     SECRET_KEY = os.environ.get("SECRET_KEY") or "replace insecure secret"
+    ADMIN_KEY = os.environ.get("ADMIN_KEY") or "adminsecret"
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "app.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 class HerokuConfig(Config):
     SECRET_KEY = os.environ["SECRET_KEY"]
+    ADMIN_KEY = os.environ["ADMIN_KEY"]
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL"
     ) or "sqlite:///" + os.path.join(basedir, "app.db")
