@@ -1,7 +1,8 @@
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, current_app
 from flask_login import current_user, login_user, logout_user
 from app import db
 from app.auth import blueprint
+import app.clubsessions as clubsessions
 from app.auth.forms import (
     LoginForm,
     RegistrationForm,
@@ -27,7 +28,6 @@ def login():
     return render_template("login.html", title="Sign In", form=form)
 
 
-@blueprint.route("/guest")
 def guest_login():
     if current_user.is_authenticated:
         return redirect(url_for("lobby.lobby"))
@@ -48,8 +48,12 @@ def register():
         return redirect(url_for("lobby.lobby"))
     form = RegistrationForm()
     if form.validate_on_submit():
+        if form.registration_token.data != current_app.config["REGISTRATION_KEY"]:
+            flash(f"Your registration token was invalid")
+            return redirect(url_for("auth.register"))
         user_dict = dict(username=form.username.data, email=form.email.data)
         user = users.create(user_dict, form.password.data)
+        clubsessions.join_all_future_sessions(user)
         flash("Thank you for signing up!")
         login_user(user)
         return redirect(url_for("lobby.lobby"))

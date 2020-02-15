@@ -43,6 +43,12 @@ def join(session_id, user):
     db.session.commit()
 
 
+def join_all_future_sessions(user):
+    future_sessions = read_all(only_future=True)
+    for session in future_sessions:
+        join(session["session_id"], user)
+
+
 def become_baker(session_id, user):
     clubsession = get_by_id(session_id)
     if clubsession.needs_bakers():

@@ -1,4 +1,4 @@
-from flask import render_template, url_for, current_app
+from flask import render_template, url_for, current_app, redirect, flash
 from app.admin import blueprint
 from flask_socketio import emit
 from app import socketio
@@ -13,9 +13,12 @@ from sqlalchemy.exc import SQLAlchemyError
 import datetime
 
 
-@blueprint.route("/admin")
+@blueprint.route("/admin/<string:token>")
 @login_required
-def admin():
+def admin(token):
+    if token != current_app.config["ADMIN_KEY"]:
+        flash("authorization invlaid")
+        return redirect(url_for("lobby.lobby"))
     return render_template("admin.html")
 
 
@@ -34,9 +37,7 @@ def create_user(data):
         raise DatabaseError
 
     if data.get("future"):
-        future_sessions = clubsessions.read_all(only_future=True)
-        for session in future_sessions:
-            clubsessions.join(session["session_id"], new_user)
+        clubsessions.join_all_future_sessions(new_user)
 
     if data.get("send_welcome_email") is not False:
         send_email(

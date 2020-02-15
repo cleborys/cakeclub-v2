@@ -196,7 +196,7 @@ class UserCreationForm extends React.Component {
             <input type="text" className="form-control" id="inputUserEOffset" placeholder="Number of cakes already eaten" onChange={this.props.onEatenChange}/>
             <input type="text" className="form-control" id="inputUserBOffset" placeholder="Number of cakes already baked" onChange={this.props.onBakedChange}/>
             <div className="form-check">
-              <input type="checkbox" className="form-check-input" id="inputUserFuture" 
+              <input type="checkbox" checked className="form-check-input" id="inputUserFuture" 
                 placeholder="Add to future sessions" onChange={this.props.onFutureChange}/>
               <label className="form-check-label" htmlFor="inputUserFuture">
                 Add to future sessions </label>
