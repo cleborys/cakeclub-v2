@@ -1,11 +1,12 @@
 from app.models import ClubSession, ClubSessionSchema, User
 from app import db
 from app.errors.flashed import FlashedError
+import app.users as user_module
 
 import datetime
 
 
-def create(date=None):
+def create(date=None, auto_assign=True):
     schema = ClubSessionSchema()
     new_clubsession = schema.load(dict(), session=db.session)
 
@@ -15,18 +16,21 @@ def create(date=None):
     if date is not None:
         new_clubsession.date = date
 
+    if auto_assign:
+        assign_bakers_by_quota(new_clubsession)
+
     db.session.add(new_clubsession)
     db.session.commit()
 
     return new_clubsession
 
 
-def create_next_session():
+def create_next_session(auto_assign=True):
     last_session = _get_most_future_scheduled_session()
     if last_session is None:
         raise NoLastSessionError
     next_date = last_session.date + datetime.timedelta(days=7)
-    create(date=next_date)
+    create(next_date, auto_assign)
 
 
 def delete(session_id, user):
@@ -91,5 +95,24 @@ def _get_most_future_scheduled_session():
     return query.order_by(ClubSession.date.desc()).first()
 
 
+def assign_bakers_by_quota(session):
+    baker_generator = (x for x in user_module.read_quota_list())
+
+    while len(session.bakers.all()) < session.max_bakers:
+        try:
+            next_baker_id = next(baker_generator)["user_id"]
+        except StopIteration:
+            db.session.commit()
+            raise UnsufficientBakersError
+        baker = user_module.get_user_by_id(next_baker_id)
+        baker.baker_sessions.append(session)
+
+    db.session.commit()
+
+
 class NoLastSessionError(FlashedError):
     user_description: "Did not find a session in the future."
+
+
+class InsufficientBakersError(FlashedError):
+    user_description: "Not enough bakers to assign to session."

@@ -13,19 +13,7 @@ def members():
 
 
 @socketio.on("request_members")
-def send_sessions():
-    members = users.read_all()
-
-    stripped_members = [
-        {
-            "username": member["username"],
-            "eaten": len(member["sessions"]) + member["eaten_offset"],
-            "baked": len(member["baker_sessions"]) + member["baked_offset"],
-        }
-        for member in members
-    ]
-    for member in stripped_members:
-        member["quota"] = member["baked"] / max(member["eaten"], 1)
-    stripped_members.sort(key=lambda x: x["quota"])
+def send_member_table():
+    stripped_members = users.read_quota_list()
 
     emit("member_list", {"data": stripped_members})

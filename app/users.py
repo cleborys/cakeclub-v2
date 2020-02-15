@@ -49,3 +49,27 @@ def read_all():
     users = User.query.all()
     user_schema = UserSchema(many=True)
     return user_schema.dump(users)
+
+
+def read_quota_list():
+    """
+    Returns a list of user dicts with essential information only, 
+    sorted by bake quota (# cakes baked)/(# cakes eaten) from least baked to most baked.
+
+    If no bakes were eaten, the quota is (# cakes baked) / 1
+    """
+    members = read_all()
+
+    stripped_members = [
+        {
+            "username": member["username"],
+            "user_id": member["user_id"],
+            "eaten": len(member["sessions"]) + member["eaten_offset"],
+            "baked": len(member["baker_sessions"]) + member["baked_offset"],
+        }
+        for member in members
+    ]
+    for member in stripped_members:
+        member["quota"] = member["baked"] / max(member["eaten"], 1)
+
+    return sorted(stripped_members, key=lambda x: x["quota"])
