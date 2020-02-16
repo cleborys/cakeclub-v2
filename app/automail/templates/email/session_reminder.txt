@@ -4,7 +4,8 @@ It's cake day!
 As usual, you will find cake on the fourth floor at 15:00.
 Today's secret phrase is {{ secret_phrase }}.
 
-{% if next_bakeday %}Please note that your next scheduled bakeday is on {{ next_bakeday() }}.
+{% if next_bakeday is not none %}
+Please note that your next scheduled bakeday is on {{ next_bakeday.date }}.
 If you cannot attend that day, feel free to register your absence on the
 website, but please try to find a replacement baker in due time.
 {% else %}You have not yet registered for your next bakeday!

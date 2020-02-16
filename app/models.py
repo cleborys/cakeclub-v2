@@ -104,7 +104,7 @@ class ClubSession(db.Model):
 
     def __repr__(self):
         return (
-            f"<ClubSession with id {self.lobby_id}" f"hosted by {self.host.username}>"
+            f"<ClubSession with id {self.session_id} with bakers {self.bakers.all()}>"
         )  # pragma: no cover
 
     def needs_bakers(self):

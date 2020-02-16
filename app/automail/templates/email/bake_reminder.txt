@@ -1,7 +1,7 @@
-Dear {{ ", ".join(x.username for x in session.bakers) }},
+Dear {{ names }},
 
-The cakeclub is calling upon you to bake on {{ session.date }}!
-Currently, we are expecting {{ len(session.participants) }} hungry mouths to
+The cakeclub is calling upon you to bake this week on {{ session.date }}!
+Currently, we are expecting {{ participant_nbr }} hungry mouths to
 feed.
 
 If you can't bake for any reason, you should quickly arrange a replacement!

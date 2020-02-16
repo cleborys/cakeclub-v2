@@ -72,7 +72,7 @@ def create_next_session(data):
 
 @socketio.on("delete_session")
 def delete_session(session_id):
-    clubsessions.delete(session_id, current_user)
+    clubsessions.delete(session_id)
     broadcast_session_update()
 
 

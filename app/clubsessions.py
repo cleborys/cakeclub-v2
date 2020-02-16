@@ -16,10 +16,11 @@ def create(date=None, auto_assign=True):
     if date is not None:
         new_clubsession.date = date
 
+    db.session.add(new_clubsession)
+
     if auto_assign:
         assign_bakers_by_quota(new_clubsession)
 
-    db.session.add(new_clubsession)
     db.session.commit()
 
     return new_clubsession
@@ -30,10 +31,10 @@ def create_next_session(auto_assign=True):
     if last_session is None:
         raise NoLastSessionError
     next_date = last_session.date + datetime.timedelta(days=7)
-    create(next_date, auto_assign)
+    return create(next_date, auto_assign)
 
 
-def delete(session_id, user):
+def delete(session_id):
     session = get_by_id(session_id)
     db.session.delete(session)
     db.session.commit()
@@ -55,6 +56,8 @@ def join_all_future_sessions(user):
 
 def become_baker(session_id, user):
     clubsession = get_by_id(session_id)
+    if user not in clubsession.participants.all():
+        user.sessions.append(clubsession)
     if clubsession.needs_bakers():
         user.baker_sessions.append(clubsession)
 
@@ -98,12 +101,11 @@ def _get_most_future_scheduled_session():
 def assign_bakers_by_quota(session):
     baker_generator = (x for x in user_module.read_quota_list())
 
-    while len(session.bakers.all()) < session.max_bakers:
+    while session.needs_bakers():
         try:
             next_baker_id = next(baker_generator)["user_id"]
         except StopIteration:
-            db.session.commit()
-            raise UnsufficientBakersError
+            raise InsufficientBakersError
         baker = user_module.get_user_by_id(next_baker_id)
         baker.baker_sessions.append(session)
 

@@ -16,19 +16,6 @@ def create(user, cleartext_password):
     return new_user
 
 
-def create_guest():
-    username = username_generator.get_uname(3, 64, False)
-    email = f"{username}@mailinator.com"
-    cleartext_password = username
-    user_dict = dict(username=username, email=email, is_guest=True)
-
-    existing_user = get_user_by_name(username)
-    if existing_user is None:
-        return create(user_dict, cleartext_password)
-    else:
-        return existing_user
-
-
 def get_user_by_name(username):
     return User.query.filter(User.username == username).one_or_none()
 
