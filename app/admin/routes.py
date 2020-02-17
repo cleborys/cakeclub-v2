@@ -17,7 +17,7 @@ import datetime
 @login_required
 def admin(token):
     if token != current_app.config["ADMIN_KEY"]:
-        flash("authorization invlaid")
+        flash("authorization invalid")
         return redirect(url_for("lobby.lobby"))
     return render_template("admin.html")
 
@@ -68,6 +68,15 @@ def create_session(data):
 def create_next_session(data):
     clubsessions.create_next_session()
     broadcast_session_update()
+
+
+@blueprint.route("/api/schedule/<string:token>", methods=["GET"])
+def schedule_next_session_via_api(token):
+    if token != current_app.config["ADMIN_KEY"]:
+        return "authorization invalid"
+    new_session = clubsessions.create_next_session()
+    return f"scheduled new session {new_session}"
+
 
 
 @socketio.on("delete_session")

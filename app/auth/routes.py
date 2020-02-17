@@ -19,7 +19,7 @@ def login():
         return redirect(url_for("lobby.lobby"))
     form = LoginForm()
     if form.validate_on_submit():
-        user = users.get_user_by_name(form.username.data)
+        user = users.get_user_by_email(form.email.data)
         if user is None or not user.check_password(form.password.data):
             flash("We could not find a user with that name and password.")
             return redirect(url_for("auth.login"))
