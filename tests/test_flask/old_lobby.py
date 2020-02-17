@@ -1,6 +1,7 @@
-import app.lobbies as lobbies
-from app.models import GameLobby
+import app.lobby.routes as routes
 from config import TestCaseWithApp
+
+from pytest_mock import mocker
 
 
 class TestLobby(TestCaseWithApp):

@@ -28,14 +28,6 @@ def login():
     return render_template("login.html", title="Sign In", form=form)
 
 
-def guest_login():
-    if current_user.is_authenticated:
-        return redirect(url_for("lobby.lobby"))
-    user = users.create_guest()
-    login_user(user)
-    return redirect(url_for("lobby.lobby"))
-
-
 @blueprint.route("/logout")
 def logout():
     logout_user()

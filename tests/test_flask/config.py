@@ -8,6 +8,7 @@ import app.clubsessions as clubsessions
 class TestingConfig(DevelopmentConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite://"
+    WTF_CSRF_ENABLED = False
 
 
 class TestCaseWithApp:
