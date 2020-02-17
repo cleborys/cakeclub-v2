@@ -44,10 +44,28 @@ def create_user(data):
             "Your Cakeclub Account",
             current_app.config["ADMIN_EMAIL"],
             recipients=[new_user.email],
-            body=render_template(
-                "email/welcome.txt", user=new_user, password=data["password"]
-            ),
+            body=welcome_email_body(new_user, data["password"]),
         )
+    broadcast_session_update()
+
+
+def welcome_email_body(user, password):
+    render_template("email/welcome.txt", user=new_user, password=password)
+
+
+@socketio.on("force_baker")
+@flashed_errors_forwarded
+def force_baker(data):
+    baker = users_module.get_user_by_id(data["baker_id"])
+    clubsessions.become_baker(data["session_id"], baker)
+    broadcast_session_update()
+
+
+@socketio.on("remove_bakers")
+@flashed_errors_forwarded
+def remove_bakers(session_id):
+    clubsessions.remove_bakers(session_id)
+    broadcast_session_update()
 
 
 @socketio.on("create_session")
@@ -78,7 +96,6 @@ def schedule_next_session_via_api(token):
     return f"scheduled new session {new_session}"
 
 
-
 @socketio.on("delete_session")
 def delete_session(session_id):
     clubsessions.delete(session_id)
@@ -92,6 +109,12 @@ def broadcast_session_update():
 @socketio.on("request_sessions")
 def send_sessions():
     return lobbyroutes.send_sessions()
+
+
+@socketio.on("request_members")
+def send_member_table():
+    stripped_members = users_module.read_quota_list()
+    emit("member_list", {"data": stripped_members})
 
 
 class InvalidDateError(FlashedError):

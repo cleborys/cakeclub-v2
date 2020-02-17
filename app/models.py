@@ -103,9 +103,7 @@ class ClubSession(db.Model):
     max_bakers = db.Column(db.Integer, default=2)
 
     def __repr__(self):
-        return (
-            f"<ClubSession with id {self.session_id} with bakers {self.bakers.all()} on {self.date}>"
-        )  # pragma: no cover
+        return f"<ClubSession with id {self.session_id} with bakers {self.bakers.all()} on {self.date}>"  # pragma: no cover
 
     def needs_bakers(self):
         return len(self.bakers.all()) < self.max_bakers

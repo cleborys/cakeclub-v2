@@ -55,7 +55,7 @@ class TestCaseWithApp:
     def logged_in_client(self):
         user = dict(username="test-user", email="test@notanemailprovider.really")
         password = "test-password"
-        test_user =  users.create(user, password)
+        test_user = users.create(user, password)
 
         client = self.app.test_client()
         client.post(
@@ -65,4 +65,3 @@ class TestCaseWithApp:
         )
 
         return client
-

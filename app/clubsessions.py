@@ -64,6 +64,14 @@ def become_baker(session_id, user):
     db.session.commit()
 
 
+def remove_bakers(session_id):
+    clubsession = get_by_id(session_id)
+    for user in clubsession.bakers.all():
+        user.baker_sessions.remove(clubsession)
+
+    db.session.commit()
+
+
 def leave(session_id, user):
     clubsession = get_by_id(session_id)
     if user in clubsession.participants:
