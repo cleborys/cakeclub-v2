@@ -65,7 +65,7 @@ def create_or_update_user(data):
 
 
 def welcome_email_body(user, password):
-    render_template("email/welcome.txt", user=user, password=password)
+    return render_template("email/welcome.txt", user=user, password=password)
 
 
 @socketio.on("force_baker")

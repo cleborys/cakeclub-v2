@@ -43,7 +43,7 @@ class TestAdmin(TestCaseWithApp):
         }
         admin.broadcast_session_update = mocker.stub()
         admin.send_email = mocker.stub()
-        
+
         admin.create_or_update_user(data)
 
         admin.broadcast_session_update.assert_called_once()
