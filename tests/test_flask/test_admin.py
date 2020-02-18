@@ -39,16 +39,34 @@ class TestAdmin(TestCaseWithApp):
             "username": "test_user",
             "email": "cakeclub-test@mailinator.com",
             "eaten_offset": 1,
-            "password": "test password",
             "send_welcome_email": False,
         }
         admin.broadcast_session_update = mocker.stub()
-
-        admin.create_user(data)
+        admin.send_email = mocker.stub()
+        
+        admin.create_or_update_user(data)
 
         admin.broadcast_session_update.assert_called_once()
+        admin.send_email.assert_not_called()
         new_user = users.get_user_by_email(data["email"])
         assert new_user.username == data["username"]
+
+    def test_update_existing_user(self, test_user, mocker):
+        new_offset = 999
+        data = {
+            "email": test_user.email,
+            "eaten_offset": new_offset,
+            "send_welcome_email": False,
+        }
+        admin.broadcast_session_update = mocker.stub()
+        admin.send_email = mocker.stub()
+
+        admin.create_or_update_user(data)
+
+        admin.broadcast_session_update.assert_called_once()
+        admin.send_email.assert_not_called()
+        updated_user = users.get_user_by_email(test_user.email)
+        assert updated_user.eaten_offset == new_offset
 
     def test_remove_bakers(self, several_users, test_session, mocker):
         admin.broadcast_session_update = mocker.stub()

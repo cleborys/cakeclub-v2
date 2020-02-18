@@ -95,7 +95,7 @@ class App extends React.Component {
       <div className="btn-group">
         <a type="button" className="btn btn-primary" data-toggle="modal" data-target="#SessionCreationModal">Create Custom Session</a>
         <a type="button" className="btn btn-primary" onClick={this.handleNextSession}>Create Next Session</a>
-        <a type="button" className="btn btn-primary" data-toggle="modal" data-target="#UserCreationModal">Create User</a>
+        <a type="button" className="btn btn-primary" data-toggle="modal" data-target="#UserCreationModal">Create or Update User</a>
         <a type="button" className="btn btn-primary" data-toggle="modal" data-target="#ForceBakerModal">Force a Baker</a>
       </div>
       <hr/>
@@ -134,6 +134,7 @@ class ForceBakerModal extends React.Component {
 
     handleSubmit(event) {
       socket.emit("force_baker", this.state);
+      $('#ForceBakerModal').modal('hide');
     }
 
     render() {
@@ -190,14 +191,14 @@ class UserCreationModal extends React.Component {
     constructor(props) {
       super(props);
 
-      this.state = {eaten_offset: 0, baked_offset: 0, future: true};
+      this.state = {future: true, send_welcome_email: true};
       this.handleSubmit = this.handleSubmit.bind(this);
       this.changeName = this.changeName.bind(this);
       this.changeMail = this.changeMail.bind(this);
       this.changeEaten = this.changeEaten.bind(this);
       this.changeBaked = this.changeBaked.bind(this);
       this.changeFuture = this.changeFuture.bind(this);
-      this.changePassword = this.changePassword.bind(this);
+      this.changeSendEmail = this.changeSendEmail.bind(this);
     }
 
     changeName(event) {
@@ -215,12 +216,13 @@ class UserCreationModal extends React.Component {
     changeFuture(event) {
       this.setState({future: event.target.value});
     }
-    changePassword(event) {
-      this.setState({password: event.target.value});
+    changeSendEmail(event) {
+      this.setState({send_welcome_email: event.target.value});
     }
 
     handleSubmit(event) {
       socket.emit("create_user", this.state);
+      $('#UserCreationModal').modal('hide');
     }
 
     render() {
@@ -241,14 +243,14 @@ class UserCreationModal extends React.Component {
                   onEatenChange={this.changeEaten}
                   onBakedChange={this.changeBaked}
                   onFutureChange={this.changeFuture}
-                  onPasswordChange={this.changePassword}
+                  onSendEmailChange={this.changeSendEmail}
                 />
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" data-dismiss="modal">
                   Close</button>
                 <button type="button" className="btn btn-primary" onClick={this.handleSubmit}>
-                  Create User</button>
+                  Submit</button>
               </div>
             </div>
           </div>
@@ -272,12 +274,17 @@ class UserCreationForm extends React.Component {
             <input type="text" className="form-control" id="inputUserEOffset" placeholder="Number of cakes already eaten" onChange={this.props.onEatenChange}/>
             <input type="text" className="form-control" id="inputUserBOffset" placeholder="Number of cakes already baked" onChange={this.props.onBakedChange}/>
             <div className="form-check">
-              <input type="checkbox" checked className="form-check-input" id="inputUserFuture" 
+              <input type="checkbox" className="form-check-input" id="inputUserFuture" 
                 placeholder="Add to future sessions" onChange={this.props.onFutureChange}/>
               <label className="form-check-label" htmlFor="inputUserFuture">
                 Add to future sessions </label>
             </div>
-            <input type="text" className="form-control" id="inputUserPassword" placeholder="Password" onChange={this.props.onPasswordChange}/>
+            <div className="form-check">
+              <input type="checkbox" className="form-check-input" id="inputUserSendEmail" 
+                placeholder="Reset Password and send welcome email" onChange={this.props.onSendEmailChange}/>
+              <label className="form-check-label" htmlFor="inputUserSendEmail">
+                Reset Password and send welcome email</label>
+            </div>
           </div>
           <div className="form-group">
           </div>
@@ -302,6 +309,7 @@ class SessionCreationModal extends React.Component {
 
     handleSubmit(event) {
       socket.emit("create_session", this.state);
+      $('#SessionCreationModal').modal('hide');
     }
 
     render() {

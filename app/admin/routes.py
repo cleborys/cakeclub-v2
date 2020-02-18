@@ -2,6 +2,7 @@ from flask import render_template, url_for, current_app, redirect, flash
 from app.admin import blueprint
 from flask_socketio import emit
 from app import socketio
+from app import db
 from flask_login import current_user, login_required
 import app.clubsessions as clubsessions
 import app.users as users_module
@@ -11,6 +12,7 @@ from app.errors.flashed import FlashedError, flashed_errors_forwarded
 
 from sqlalchemy.exc import SQLAlchemyError
 import datetime
+import username_generator
 
 
 @blueprint.route("/admin/<string:token>")
@@ -24,33 +26,46 @@ def admin(token):
 
 @socketio.on("create_user")
 @flashed_errors_forwarded
-def create_user(data):
-    user_data = {
-        "username": data["username"],
-        "email": data["email"],
-        "eaten_offset": int(data.get("eaten_offset", 0)),
-        "baked_offset": int(data.get("baked_offset", 0)),
-    }
-    try:
-        new_user = users_module.create(user_data, data["password"])
-    except SQLAlchemyError:
-        raise DatabaseError
+def create_or_update_user(data):
+    temp_password = username_generator.get_uname(10, 64, False)
+    existing_user = users_module.get_user_by_email(data["email"])
+
+    if not existing_user:
+        user_data = {
+            "username": data["username"],
+            "email": data["email"],
+            "eaten_offset": int(data.get("eaten_offset", 0)),
+            "baked_offset": int(data.get("baked_offset", 0)),
+        }
+        try:
+            new_user = users_module.create(user_data, temp_password)
+        except SQLAlchemyError:
+            raise DatabaseError
+    else:
+        new_user = existing_user
+        if "eaten_offset" in data:
+            new_user.eaten_offset = int(data["eaten_offset"])
+        if "baked_offset" in data:
+            new_user.baked_offset = int(data["baked_offset"])
 
     if data.get("future"):
         clubsessions.join_all_future_sessions(new_user)
 
     if data.get("send_welcome_email") is not False:
+        new_user.set_password(temp_password)
         send_email(
             "Your Cakeclub Account",
             current_app.config["ADMIN_EMAIL"],
             recipients=[new_user.email],
-            body=welcome_email_body(new_user, data["password"]),
+            body=welcome_email_body(new_user, temp_password),
         )
+
+    db.session.commit()
     broadcast_session_update()
 
 
 def welcome_email_body(user, password):
-    render_template("email/welcome.txt", user=new_user, password=password)
+    render_template("email/welcome.txt", user=user, password=password)
 
 
 @socketio.on("force_baker")
@@ -103,7 +118,8 @@ def delete_session(session_id):
 
 
 def broadcast_session_update():
-    emit("sessions_updated", broadcast=True)
+    emit("sessions_updated")
+    send_member_table()
 
 
 @socketio.on("request_sessions")
