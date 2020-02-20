@@ -4,8 +4,13 @@ from app import db
 import username_generator
 
 
+def sanitize_email(email):
+    return email.lower()
+
+
 def create(user, cleartext_password):
     schema = UserSchema()
+    user["email"] = sanitize_email(user["email"])
     new_user = schema.load(user, session=db.session)
 
     new_user.set_password(cleartext_password)
@@ -21,6 +26,7 @@ def get_user_by_name(username):
 
 
 def get_user_by_email(email):
+    email = sanitize_email(email)
     return User.query.filter(User.email == email).one_or_none()
 
 

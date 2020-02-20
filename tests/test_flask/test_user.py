@@ -32,6 +32,16 @@ class TestUser(TestCaseWithApp):
         retrieved_user = users.get_user_by_email(test_user.email)
         assert retrieved_user.user_id == test_user.user_id
 
+    def test_get_by_email_sanitized(self):
+        user = dict(username="test-user", email="teSt@notAnemailprOvider.really")
+        password = "test-password"
+        new_user = users.create(user, password)
+
+        retrieved_user = users.get_user_by_email("Test@nOtaneMailproVIder.really")
+
+        assert retrieved_user is not None
+        assert new_user.user_id == retrieved_user.user_id
+
     def test_password_reset_token(self, test_user):
         token = test_user.get_password_reset_token()
         assert isinstance(token, str)
