@@ -13,6 +13,7 @@ from app.errors.flashed import FlashedError, flashed_errors_forwarded
 from sqlalchemy.exc import SQLAlchemyError
 import datetime
 import username_generator
+import random
 
 
 @blueprint.route("/admin/<string:token>")
@@ -28,6 +29,7 @@ def admin(token):
 @flashed_errors_forwarded
 def create_or_update_user(data):
     temp_password = username_generator.get_uname(10, 64, False)
+    temp_password += str(random.randint(1111, 9999))
     existing_user = users_module.get_user_by_email(data["email"])
 
     if not existing_user:
@@ -57,15 +59,16 @@ def create_or_update_user(data):
             "Your Cakeclub Account",
             current_app.config["ADMIN_EMAIL"],
             recipients=[new_user.email],
-            body=welcome_email_body(new_user, temp_password),
+            body=render_template(
+                "email/welcome.html", user=new_user, password=temp_password
+            ),
+            plain=render_template(
+                "email/welcome.txt", user=new_user, password=temp_password
+            ),
         )
 
     db.session.commit()
     broadcast_session_update()
-
-
-def welcome_email_body(user, password):
-    return render_template("email/welcome.txt", user=user, password=password)
 
 
 @socketio.on("force_baker")

@@ -10,9 +10,13 @@ def send_email_async(app, message):
         mail.send(message)
 
 
-def send_email(subject, sender, recipients, body):
+def send_email(subject, sender, recipients, body, plain=None):
     msg = Message(subject, sender=sender, recipients=recipients)
-    msg.body = body
+    msg.html = body
+    if plain is None:
+        msg.body = body
+    else:
+        msg.body = plain
     Thread(
         target=send_email_async, args=(current_app._get_current_object(), msg)
     ).start()

@@ -1,0 +1,38 @@
+{% extends "email-base.html" %}
+
+{% block title %}
+Cakeclub Account Creation
+{% endblock %}
+
+
+{% block content %}
+<tr>
+    <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+        Your new account in the cakeclub system has been enabled.<br/>
+        <a href={{ url_for('main.index', _external=True) }} >
+          Please click here to login.</a>
+    </td>
+</tr>
+<tr>
+    <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+        You can use the following credentials:
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td>Email:</td>
+            <td>{{ user.email }}</td>
+          </tr>
+            <td>Password:</td>
+            <td>{{ password }}</td>
+          <tr>
+          </tr>
+        </table>
+    </td>
+</tr>
+<tr>
+    <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+        Please note that this is not a secure password!<br/>
+        You are encouraged to change it using the password reset option on the
+        login screen.
+    </td>
+</tr>
+{% endblock %}

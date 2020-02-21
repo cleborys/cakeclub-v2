@@ -104,7 +104,8 @@ class TestAuth(TestCaseWithApp):
 
         emails.send_email.assert_called_once()
         email_body = emails.send_email.call_args[1]["body"]
-        address_with_token = email_body.split("localhost")[1].split("\n\nIf")[0]
+        address_with_token = email_body.split("localhost")[1].split(" >")[0]
+        print(email_body.split("localhost")[1])
 
         new_password = "new_password"
         assert test_user.check_password(new_password) is False
