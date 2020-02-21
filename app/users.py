@@ -38,6 +38,11 @@ def verify_password_reset_token(token):
     return User.verify_password_reset_token(token)
 
 
+def set_active(user, active=True):
+    user.is_active = active
+    db.session.commit()
+
+
 def read_all():
     users = User.query.all()
     user_schema = UserSchema(many=True)

@@ -110,6 +110,7 @@ def create_app(config_object=DevelopmentConfig):
     from app.lobby import blueprint as lobby_blueprint
     from app.admin import blueprint as admin_blueprint
     from app.members import blueprint as members_blueprint
+    from app.profile import blueprint as profile_blueprint
     from app.automail import blueprint as automail_blueprint
 
     app.register_blueprint(main_blueprint)
@@ -118,6 +119,7 @@ def create_app(config_object=DevelopmentConfig):
     app.register_blueprint(lobby_blueprint)
     app.register_blueprint(admin_blueprint)
     app.register_blueprint(members_blueprint)
+    app.register_blueprint(profile_blueprint)
     app.register_blueprint(automail_blueprint)
 
     from app import models
