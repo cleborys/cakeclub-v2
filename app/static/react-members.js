@@ -6,7 +6,7 @@ window.setInterval( () => {
   } else {
     $('#ConnectionAlert').fadeIn();
   }
-}, 1000);
+}, 2000);
 
 socket.on("connect", () => {
     $('#ConnectionAlert').fadeOut();

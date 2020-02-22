@@ -6,6 +6,7 @@ from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_socketio import SocketIO
+from werkzeug.contrib.profiler import ProfilerMiddleware
 
 import os
 from dotenv import load_dotenv
@@ -24,6 +25,7 @@ class Config:
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME") or None
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD") or None
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL") or None
+    PROFILE = os.environ.get("PROFILE", False)
 
     LOG_TO_STDOUT = os.environ.get("LOG_TO_STDOUT")
 
@@ -34,6 +36,7 @@ class DevelopmentConfig(Config):
     REGISTRATION_KEY = os.environ.get("REGISTRATION_KEY") or "signmeup"
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "app.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    PROFILE = True
 
 
 class HerokuConfig(Config):
@@ -123,5 +126,8 @@ def create_app(config_object=DevelopmentConfig):
     app.register_blueprint(automail_blueprint)
 
     from app import models
+
+    if app.config["PROFILE"]:
+        app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
 
     return app
