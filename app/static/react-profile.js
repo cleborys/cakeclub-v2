@@ -130,24 +130,23 @@ class UserStatus extends React.Component{
     constructor(props) {
       super(props);
       this.state = {user: {}, received_data: false};
-      this.rerequest = this.rerequest.bind(this);
     }
 
     componentDidMount() {
-         socket.on("current_user", (msg) => 
-           {
-           this.setState(previousState => ({
-                 user: msg.data,
-                 received_data: true,
-             }))
-         });
-         
-         socket.emit("request_status");
-     }
+        socket.on("current_user", (msg) => 
+          {
+          this.setState(previousState => ({
+                user: msg.data,
+                received_data: true,
+            }));
+          clearInterval(this.refresher);
+        });
 
-    rerequest(event) {
-         socket.emit("request_status");
-    }
+        socket.emit("request_status");
+        this.refresher = window.setInterval( () => {
+          socket.emit("request_status");
+        }, 5000);
+     }
 
     render() {
         if (!this.state.received_data) {

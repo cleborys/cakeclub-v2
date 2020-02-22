@@ -169,10 +169,11 @@ class SessionTable extends React.Component{
     componentDidMount() {
          socket.on("open_sessions", (msg) => 
            {
-           this.setState(previousState => ({
+             this.setState(previousState => ({
                  sessions: msg.data,
                  received_data: true,
-             }))
+             }));
+            clearInterval(this.refresher);
          });
          
          socket.on("sessions_updated", (msg) =>
@@ -181,6 +182,9 @@ class SessionTable extends React.Component{
          });
 
          socket.emit("request_sessions");
+         this.refresher = window.setInterval( () => {
+           socket.emit("request_sessions");
+         }, 5000);
      }
 
     render() {

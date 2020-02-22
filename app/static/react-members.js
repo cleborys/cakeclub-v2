@@ -104,13 +104,17 @@ class MemberTable extends React.Component{
     componentDidMount() {
          socket.on("member_list", (msg) => 
            {
-           this.setState(previousState => ({
+             this.setState(previousState => ({
                  users: msg.data,
                  received_data: true,
-             }))
+             }));
+             clearInterval(this.refresher);
          });
          
-         socket.emit("request_members");
+        socket.emit("request_members");
+        this.refresher = window.setInterval( () => {
+          socket.emit("request_members");
+        }, 5000);
      }
 
     render() {
