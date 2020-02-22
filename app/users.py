@@ -43,8 +43,11 @@ def set_active(user, active=True):
     db.session.commit()
 
 
-def read_all():
-    users = User.query.all()
+def read_all(active_only=False):
+    query = User.query
+    if active_only:
+        query = query.filter(User.is_active == True)
+    users = query.all()
     user_schema = UserSchema(many=True)
     return user_schema.dump(users)
 
@@ -56,13 +59,14 @@ def read_quota_list():
 
     If no bakes were eaten, the quota is (# cakes baked) / 1
     """
-    members = read_all()
+    members = read_all(active_only=True)
 
     stripped_members = [
         {
             "username": member["username"],
             "user_id": member["user_id"],
             "eaten": len(member["sessions"]) + member["eaten_offset"],
+
             "baked": len(member["baker_sessions"]) + member["baked_offset"],
         }
         for member in members
