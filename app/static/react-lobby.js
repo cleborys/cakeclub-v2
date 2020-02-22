@@ -184,7 +184,8 @@ class SessionTable extends React.Component{
          socket.emit("request_sessions");
          this.refresher = window.setInterval( () => {
            socket.emit("request_sessions");
-         }, 5000);
+           console.log("refreshing...")
+         }, 3000);
      }
 
     render() {
