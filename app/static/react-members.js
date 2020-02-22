@@ -98,23 +98,31 @@ class App extends React.Component {
 class MemberTable extends React.Component{
     constructor(props) {
       super(props);
-      this.state = {users: []};
+      this.state = {users: [], received_data: false};
     }
 
     componentDidMount() {
          socket.on("member_list", (msg) => 
            {
            this.setState(previousState => ({
-                 users: msg.data
+                 users: msg.data,
+                 received_data: true,
              }))
-            console.log(msg.data)
          });
          
          socket.emit("request_members");
      }
 
     render() {
-      if (this.state.users.length == 0){
+      if (!this.state.received_data) {
+        return (
+          <div>
+            <h4 className="card-title text-primary">Cakeclub Members</h4>
+            <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+          </div>
+        )
+      }
+      else if (this.state.users.length == 0){
         return (
           <div>
             <h4 className="card-title text-primary">There is no-one around...</h4>

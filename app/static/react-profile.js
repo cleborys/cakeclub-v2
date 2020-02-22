@@ -21,8 +21,6 @@ class ErrorToast extends React.Component{
    componentDidMount() {
         socket.on("error_msg", (msg) => 
           {
-          console.log("received error")
-          console.log(msg)
           this.setState(previousState => ({
                 error: msg.data
             }))
@@ -121,7 +119,7 @@ class App extends React.Component {
       <PasswordModal />
 
       <div className="jumbotron">
-          <UserStatus user={{username: "Username", email: "Email", is_active: false}}/>
+          <UserStatus user={{}}/>
       </div>
     </div>
     )
@@ -131,22 +129,35 @@ class App extends React.Component {
 class UserStatus extends React.Component{
     constructor(props) {
       super(props);
-      this.state = {user: {}};
+      this.state = {user: {}, received_data: false};
+      this.rerequest = this.rerequest.bind(this);
     }
 
     componentDidMount() {
          socket.on("current_user", (msg) => 
            {
            this.setState(previousState => ({
-                 user: msg.data
+                 user: msg.data,
+                 received_data: true,
              }))
-            console.log(msg.data)
          });
          
          socket.emit("request_status");
      }
 
+    rerequest(event) {
+         socket.emit("request_status");
+    }
+
     render() {
+        if (!this.state.received_data) {
+          return (
+            <div>
+              <h4 className="card-title text-primary">Your Profile</h4>
+              <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+            </div>
+          )
+        }
         return (
           <div>
             <h4 className="card-title text-primary">Your Profile</h4>
@@ -166,7 +177,7 @@ class UserStatus extends React.Component{
               </tr>
               <tr>
                 <td>Status:</td>
-                <td> <ActiveButton status={this.state.user.is_active}/> </td>
+                <td> <ActiveButton is_active={this.state.user.is_active}/> </td>
               </tr>
               <tr>
                 <td>Password:</td>
@@ -185,34 +196,28 @@ class ActiveButton extends React.Component {
     constructor(props) {
       super(props);
 
-      this.state = {is_active: false};
       this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleSubmit(event) {
-      this.state.is_active = !(this.state.is_active)
-      socket.emit("set_active", this.state.is_active);
+      socket.emit("set_active", !this.props.is_active);
     }
 
-    componentDidMount() {
-         socket.on("current_user", (msg) => 
-           {
-           this.setState(previousState => ({
-                 is_active: msg.data.is_active
-             }))
-         });
-     }
-
     render() {
-      if (this.state.is_active) {
+      if (this.props.is_active === true) {
         return (
           <button type="button" className="btn btn-sm btn-success" onClick={this.handleSubmit}>
             Active</button>
         )
-      } else {
+      } else if (this.props.is_active === false) {
         return (
           <button type="button" className="btn btn-sm btn-danger" onClick={this.handleSubmit}>
             Inactive</button>
+        )
+      } else {
+        return (
+          <button type="button" className="btn btn-sm btn-default" >
+            Status</button>
         )
       }
     }

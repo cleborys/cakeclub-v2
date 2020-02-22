@@ -21,8 +21,6 @@ class ErrorToast extends React.Component{
    componentDidMount() {
         socket.on("error_msg", (msg) => 
           {
-          console.log("received error")
-          console.log(msg)
           this.setState(previousState => ({
                 error: msg.data
             }))
@@ -107,7 +105,7 @@ class App extends React.Component {
 class BakeCard extends React.Component{
   constructor(props) {
     super(props);
-    this.state = {sessions: []};
+    this.state = {sessions: [], received_data: false};
   }
 
  componentDidMount() {
@@ -115,10 +113,9 @@ class BakeCard extends React.Component{
         {
           let baking_sessions;
           baking_sessions = msg.data.filter(session => session.i_am_baking)
-          console.log("baking")
-          console.log(baking_sessions)
         this.setState(previousState => ({
-              sessions: baking_sessions
+              sessions: baking_sessions,
+              received_data: true,
           }))
       });
   }
@@ -126,7 +123,10 @@ class BakeCard extends React.Component{
   render() {
 
     let content;
-    if (this.state.sessions.length === 0){
+    if (!this.state.received_data) {
+      content = <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+    }
+    else if (this.state.sessions.length === 0){
       content = <div> You have no upcoming baking sessions. Pick one below! </div>
     } else {
       content = (
@@ -163,16 +163,16 @@ class BakeCard extends React.Component{
 class SessionTable extends React.Component{
     constructor(props) {
       super(props);
-      this.state = {sessions: []};
+      this.state = {sessions: [], received_data: false};
     }
 
     componentDidMount() {
          socket.on("open_sessions", (msg) => 
            {
            this.setState(previousState => ({
-                 sessions: msg.data
+                 sessions: msg.data,
+                 received_data: true,
              }))
-            console.log(msg.data)
          });
          
          socket.on("sessions_updated", (msg) =>
@@ -184,10 +184,19 @@ class SessionTable extends React.Component{
      }
 
     render() {
-      if (this.state.sessions.length == 0){
+      if (!this.state.received_data){
+        return(
+          <div>
+            <h4 className="card-title text-primary">Upcoming Cakeclub Sessions</h4>
+            <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+          </div>
+        )
+      }
+      else if (this.state.sessions.length == 0){
         return (
           <div>
-            <h4 className="card-title text-primary">There are no upcoming sessions.</h4>
+            <h4 className="card-title text-primary">Upcoming Cakeclub Sessions</h4>
+            There are no upcoming sessions.
           </div>
         )
       } else {
