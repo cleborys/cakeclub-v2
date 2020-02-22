@@ -191,7 +191,7 @@ class UserCreationModal extends React.Component {
     constructor(props) {
       super(props);
 
-      this.state = {future: true, send_welcome_email: true};
+      this.state = {future: false, send_welcome_email: false};
       this.handleSubmit = this.handleSubmit.bind(this);
       this.changeName = this.changeName.bind(this);
       this.changeMail = this.changeMail.bind(this);
