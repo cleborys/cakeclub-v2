@@ -38,9 +38,10 @@ def broadcast_session_update():
 
 @socketio.on("request_sessions")
 def send_sessions():
-    open_clubsessions = clubsessions.read_all()
+    open_clubsessions = clubsessions.read_all(only_future=True)
 
     for session in open_clubsessions:
+        socketio.sleep(0)
         session.update(
             {
                 "i_am_participating": current_user.user_id
