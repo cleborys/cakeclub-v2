@@ -287,14 +287,14 @@ class PasswordForm extends React.Component {
           <div className="form-group">
             <label className="form-label" htmlFor="inputOld">
               Current Password:</label>
-            <input type="text" className="form-control" id="inputOld" 
+            <input type="password" className="form-control" id="inputOld" 
               placeholder="Enter your current Password" onChange={this.props.onOldChange}/>
 
             <label className="form-label" htmlFor="inputOld">
               New Password:</label>
-            <input type="text" className="form-control" id="inputNew" 
+            <input type="password" className="form-control" id="inputNew" 
               placeholder="Enter a new Password" onChange={this.props.onNewChange}/>
-            <input type="text" className="form-control" id="inputNewR" 
+            <input type="password" className="form-control" id="inputNewR" 
               placeholder="Repeat your new Password" onChange={this.props.onNewRChange}/>
           </div>
         </form>
