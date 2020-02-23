@@ -25,7 +25,7 @@ class Config:
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME") or None
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD") or None
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL") or None
-    PROFILE = os.environ.get("PROFILE", False)
+    PROFILE = int(os.environ.get("PROFILE", 0))
 
     LOG_TO_STDOUT = os.environ.get("LOG_TO_STDOUT")
 

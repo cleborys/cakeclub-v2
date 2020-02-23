@@ -24,6 +24,7 @@ def login():
             flash("We could not find a user with that name and password.")
             return redirect(url_for("auth.login"))
         login_user(user, remember=form.remember_me.data)
+        current_app.logger.info(f"Logged in user {user}")
         return redirect(url_for("lobby.lobby"))
     return render_template("login.html", title="Sign In", form=form)
 
