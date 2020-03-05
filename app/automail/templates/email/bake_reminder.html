@@ -1,0 +1,22 @@
+{% extends "email-base.html" %}
+
+{% block title %}
+Cakeclub Bake Reminder
+{% endblock %}
+
+
+{% block content %}
+<tr>
+    <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+        The cakeclub is calling upon you to bake this week on {{ session.date }}!<br/>
+        Currently, we are expecting {{ participant_nbr }} hungry mouths to feed.
+    </td>
+</tr>
+<tr>
+    <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+      If you cannot bake for any reason, you should quickly arrange a replacement!<br/>
+      <a href="{{ url_for('main.index', _external=True) }}">
+      You can unregister in the system.</a>
+    </td>
+</tr>
+{% endblock %}

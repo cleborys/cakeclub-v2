@@ -6,7 +6,7 @@ window.setInterval( () => {
   } else {
     $('#ConnectionAlert').fadeIn();
   }
-}, 1000);
+}, 2000);
 
 socket.on("connect", () => {
     $('#ConnectionAlert').fadeOut();
@@ -21,8 +21,6 @@ class ErrorToast extends React.Component{
    componentDidMount() {
         socket.on("error_msg", (msg) => 
           {
-          console.log("received error")
-          console.log(msg)
           this.setState(previousState => ({
                 error: msg.data
             }))
@@ -92,29 +90,92 @@ class App extends React.Component {
       <ErrorToast/>
       <ConnectionToast />
 
-      <button type="button" className="btn btn-primary" onClick={this.handleNewGame}>New Session</button>
+      <div className="jumbotron">
+        <BakeCard sessions={[]}/>
+      </div>
       <hr/>
       <div className="jumbotron">
-          <SessionTable sessions={[]}/>
+        <SessionTable sessions={[]}/>
       </div>
     </div>
     )
   }
 }
 
+class BakeCard extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state = {sessions: [], received_data: false};
+  }
+
+ componentDidMount() {
+      socket.on("open_sessions", (msg) => 
+        {
+          let baking_sessions;
+          baking_sessions = msg.data.filter(session => session.i_am_baking)
+        this.setState(previousState => ({
+              sessions: baking_sessions,
+              received_data: true,
+          }))
+      });
+  }
+
+  render() {
+
+    let content;
+    if (!this.state.received_data) {
+      content = <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+    }
+    else if (this.state.sessions.length === 0){
+      content = <div> You have no upcoming baking sessions. Pick one below! </div>
+    } else {
+      content = (
+        <div>
+          <p> Be prepared! Here are your upcoming baking sessions: </p>
+          <table className="table table-hover table-sm">
+              <thead><tr>
+                  <th className="w-10">Date</th>
+                  <th className="w-10">Bakers</th>
+                  <th className="w-55">Participants</th>
+                  <th className="w-25">Actions</th>
+              </tr></thead>
+              <tbody>
+                  {this.state.sessions.map((session) =>
+                      <SessionTableRow key={session.session_id} session={session} />
+                  ) }
+              </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    return (
+        <div className="card border-danger h-100">
+          <div className="card-body d-flex flex-column justify-content-center">
+              <h4 className="card-title text-primary"> Upcoming baking sessions</h4>
+              {content}
+          </div>
+        </div>
+    );
+  }
+}
+
 class SessionTable extends React.Component{
     constructor(props) {
       super(props);
-      this.state = {sessions: []};
+      this.state = {sessions: [], received_data: false};
     }
 
     componentDidMount() {
          socket.on("open_sessions", (msg) => 
            {
-           this.setState(previousState => ({
-                 sessions: msg.data
-             }))
-            console.log(msg.data)
+             this.setState(previousState => ({
+                 sessions: msg.data,
+                 received_data: true,
+             }));
+             console.log("received sessions");
+             console.log(msg);
+            clearInterval(this.refresher);
          });
          
          socket.on("sessions_updated", (msg) =>
@@ -123,13 +184,26 @@ class SessionTable extends React.Component{
          });
 
          socket.emit("request_sessions");
+         this.refresher = window.setInterval( () => {
+           socket.emit("request_sessions");
+           console.log("refreshing...")
+         }, 5000);
      }
 
     render() {
-      if (this.state.sessions.length == 0){
+      if (!this.state.received_data){
+        return(
+          <div>
+            <h4 className="card-title text-primary">Upcoming Cakeclub Sessions</h4>
+            <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+          </div>
+        )
+      }
+      else if (this.state.sessions.length == 0){
         return (
           <div>
-            <h4 className="card-title text-primary">There are no upcoming sessions.</h4>
+            <h4 className="card-title text-primary">Upcoming Cakeclub Sessions</h4>
+            There are no upcoming sessions.
           </div>
         )
       } else {
@@ -161,29 +235,39 @@ class SessionTableRow extends React.Component {
       super(props);
     }
 
-    render() {
-      let participants;
-      participants = this.props.session.participants.length;
+    componentDidMount() {
+        $('[data-toggle="popover"]').popover({
+          container: "body",
+          trigger: "focus",
+          html: true,
+        });
+    }
 
-      let baker;
-      if (this.props.session.baker === null) {
-        baker = <div> Missing a baker! </div>
-      } else {
-        baker = <div> {this.props.session.baker.username} </div>
+    render() {
+      var baker_names = this.props.session.bakers.map(user => user.username);
+      if (this.props.session.bakers.length < this.props.session.max_bakers) {
+        baker_names.push(<span key="1" className="label label-danger">Missing a baker!</span>)
       }
 
 
-      var members = <div>
-        {intersperse(this.props.session.participants.map(user => user.username),
-          ", ") }
+      var member_list = this.props.session.participants.map(user => 
+          "<div>" + user.username + "</div>"
+      ).join("");
+
+      var bakers = <div>
+        {intersperse(baker_names, ", ") }
       </div>;
-      console.log(this.props.session);
+
+
+      var participants = <a tabIndex="0" data-toggle="popover" data-placement="bottom" data-content={member_list} >
+        {this.props.session.participants.length}
+      </a>;
 
       return (
         <tr>
           <td> {this.props.session.date} </td>
-          <td> {baker} </td>
-          <td> Expecting {participants} attendees.</td>
+          <td> {bakers} </td>
+          <td> Expecting {participants}.</td>
           <td> <SessionTableActions session={this.props.session} /> </td>
         </tr>
       );
@@ -227,7 +311,7 @@ class SessionTableActions extends React.Component {
       let bakeButton;
       if (this.props.session.i_am_baking) {
       }
-      else if (this.props.session.has_a_baker == false) {
+      else if (this.props.session.bakers.length < this.props.session.max_bakers) {
         bakeButton = (
           <button className="btn btn-success" onClick={this.handleBecomeBaker}> Bake </button>
         );

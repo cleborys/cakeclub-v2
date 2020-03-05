@@ -4,6 +4,45 @@
   {{super()}}
   <link rel="stylesheet"
         href="https://bootswatch.com/3/paper/bootstrap.min.css">
+
+  <style>
+      .lds-ring {
+      display: inline-block;
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+    .lds-ring div {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      margin: 8px;
+      border: 8px solid #cef;
+      border-radius: 50%;
+      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: #cef transparent transparent transparent;
+    }
+    .lds-ring div:nth-child(1) {
+      animation-delay: -0.45s;
+    }
+    .lds-ring div:nth-child(2) {
+      animation-delay: -0.3s;
+    }
+    .lds-ring div:nth-child(3) {
+      animation-delay: -0.15s;
+    }
+    @keyframes lds-ring {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+
   {% endblock %}
 
   {% block title %}
@@ -23,16 +62,20 @@
 
                 <a class="navbar-brand" href="{{ url_for('lobby.lobby') }}">
                   <img style="display: inline"
-                    src="/static/images/logo.png" width="auto" height="100%"/>
+                    src="/static/images/logo.png" width="auto" height="180%"/>
                   <span>Cakeclub</span>
                 </a>
 
             </div>
 
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                {% if not current_user.is_anonymous %}
                 <ul class="nav navbar-nav">
                     <li><a href="{{ url_for('lobby.lobby') }}">Lobby</a></li>
+                    <li><a href="{{ url_for('members.members') }}">Members</a></li>
+                    <li><a href="{{ url_for('profile.profile') }}">Profile</a></li>
                 </ul>
+                {% endif %}
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_anonymous %}
                     <li><a href="{{ url_for('auth.login') }}">Login</a></li>
@@ -40,8 +83,10 @@
                     <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
                     {% endif %}
                 </ul>
+                {% if not current_user.is_anonymous %}
                 <span class="navbar-text hiddem-xs navbar-right">
                   Welcome, {{ current_user.username }} </span>
+                {% endif %}
             </div>
         </div>
     </nav>

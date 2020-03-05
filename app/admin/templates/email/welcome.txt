@@ -1,0 +1,15 @@
+Dear {{ user.username }},
+
+Your new account in the cakeclub system has been enabled.
+Please login using the following credentials:
+Email: {{ user.email }}
+Password: {{ password }}
+Login page: {{ url_for('main.index', _external=True) }}
+
+You are encouraged to change this password using the password reset option on
+the login screen.
+
+Kindest regards,
+The Impartial Overlord
+(on behalf of the Cake Club)
+

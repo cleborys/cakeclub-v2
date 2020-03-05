@@ -14,6 +14,12 @@ clubsession_membership = db.Table(
     db.Column("session_id", db.Integer, db.ForeignKey("club_session.session_id")),
 )
 
+baker_membership = db.Table(
+    "baker_membership",
+    db.Column("user_id", db.Integer, db.ForeignKey("user.user_id")),
+    db.Column("session_id", db.Integer, db.ForeignKey("club_session.session_id")),
+)
+
 
 class User(UserMixin, db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
@@ -29,8 +35,11 @@ class User(UserMixin, db.Model):
     baked_offset = db.Column(db.Integer, default=0)
     eaten_offset = db.Column(db.Integer, default=0)
 
-
-    baker_sessions = db.relationship("ClubSession", backref="baker", lazy="dynamic")
+    baker_sessions = db.relationship(
+        "ClubSession",
+        secondary=baker_membership,
+        backref=db.backref("bakers", lazy="dynamic"),
+    )
 
     sessions = db.relationship(
         "ClubSession",
@@ -39,9 +48,7 @@ class User(UserMixin, db.Model):
     )
 
     def __repr__(self):
-        return (
-            f"<User {self.username} with id {self.user_id}>"
-        )  # pragma: no cover
+        return f"<User {self.username} with id {self.user_id}>"  # pragma: no cover
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -52,10 +59,15 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return self.user_id  # pragma: no cover
 
-    def get_quota(self):
-        baked = self.baked_offset + len(self.baker_sessions)
-        eaten = self.eaten_offset + len(self.sessions)
-        return baked / min(eaten, 1)
+    def next_bakeday(self):
+        today = date.today()
+        future_sessions = [
+            session for session in self.baker_sessions if session.date > today
+        ]
+        if not future_sessions:
+            return None
+        future_sessions.sort(key=lambda x: x.date)
+        return future_sessions[0]
 
     def get_password_reset_token(self, expiry_time=600):
         return jwt.encode(
@@ -87,20 +99,14 @@ class ClubSession(db.Model):
     timestamp = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
-    baker_id = db.Column(db.Integer, db.ForeignKey("user.user_id"))
+
+    max_bakers = db.Column(db.Integer, default=2)
 
     def __repr__(self):
-        return (
-            f"<ClubSession with id {self.lobby_id}"
-            f"hosted by {self.host.username}>"
-        )  # pragma: no cover
+        return f"<ClubSession with id {self.session_id} with bakers {self.bakers.all()} on {self.date}>"  # pragma: no cover
 
-    def is_full(self):
-        return len(self.members.all()) >= self.max_members
-
-    def close(self):
-        self.is_open = False
-
+    def needs_bakers(self):
+        return len(self.bakers.all()) < self.max_bakers
 
 
 class FakeUserSchema(ma.ModelSchema):
@@ -113,8 +119,7 @@ class ClubSessionSchema(ma.ModelSchema):
         model = ClubSession
         sqla_session = db.session
 
-    baker = ma.Nested(FakeUserSchema, default=None)
-
+    bakers = ma.Nested(FakeUserSchema, default=[], many=True)
     participants = ma.Nested(FakeUserSchema, default=[], many=True)
 
 
@@ -125,15 +130,9 @@ class UserSchema(ma.ModelSchema):
         sqla_session = db.session
 
     baker_sessions = ma.Nested(
-        ClubSessionSchema,
-        default=[],
-        many=True,
-        only=("session_id", "start_timestamp"),
+        ClubSessionSchema, default=[], many=True, only=("session_id", "date")
     )
 
     sessions = ma.Nested(
-        ClubSessionSchema,
-        default=[],
-        many=True,
-        only=("session_id", "start_timestamp"),
+        ClubSessionSchema, default=[], many=True, only=("session_id", "date")
     )

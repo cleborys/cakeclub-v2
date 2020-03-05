@@ -1,0 +1,32 @@
+{% extends "email-base.html" %}
+
+{% block title %}
+It's Cake Day!
+{% endblock %}
+
+
+{% block content %}
+<tr>
+    <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+      As usual, you will find cake on the fourth floor at 15:00.<br/>
+      Today's secret phrase is {{ secret_phrase }}.
+    </td>
+</tr>
+<tr>
+    <td style="padding: 20px 0 30px 0; color: #153643; font-family: Arial, sans-serif; font-size: 16px; line-height: 20px;">
+      {% if next_bakeday is not none %}
+      Please note that your next scheduled bakeday is on {{ next_bakeday.date }}.<br/>
+      If you cannot attend that day, feel free to 
+      <a href="{{ url_for('main.index', _external=True) }}">register your absence</a>
+      by leaving the session.<br/>
+      But please try to find a replacement baker in due time.
+      {% else %}
+      You have not yet registered for your next bakeday!<br/>
+      Please check out 
+      <a href="{{ url_for('main.index', _external=True) }}">
+      the available sessions</a>
+      and choose one.
+      {% endif %}
+    </td>
+</tr>
+{% endblock %}

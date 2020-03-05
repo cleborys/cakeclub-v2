@@ -1,7 +1,8 @@
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, current_app
 from flask_login import current_user, login_user, logout_user
 from app import db
 from app.auth import blueprint
+import app.clubsessions as clubsessions
 from app.auth.forms import (
     LoginForm,
     RegistrationForm,
@@ -18,22 +19,14 @@ def login():
         return redirect(url_for("lobby.lobby"))
     form = LoginForm()
     if form.validate_on_submit():
-        user = users.get_user_by_name(form.username.data)
+        user = users.get_user_by_email(form.email.data)
         if user is None or not user.check_password(form.password.data):
             flash("We could not find a user with that name and password.")
             return redirect(url_for("auth.login"))
         login_user(user, remember=form.remember_me.data)
+        current_app.logger.info(f"Logged in user {user}")
         return redirect(url_for("lobby.lobby"))
     return render_template("login.html", title="Sign In", form=form)
-
-
-@blueprint.route("/guest")
-def guest_login():
-    if current_user.is_authenticated:
-        return redirect(url_for("lobby.lobby"))
-    user = users.create_guest()
-    login_user(user)
-    return redirect(url_for("lobby.lobby"))
 
 
 @blueprint.route("/logout")
@@ -48,8 +41,12 @@ def register():
         return redirect(url_for("lobby.lobby"))
     form = RegistrationForm()
     if form.validate_on_submit():
+        if form.registration_token.data != current_app.config["REGISTRATION_KEY"]:
+            flash(f"Your registration token was invalid")
+            return redirect(url_for("auth.register"))
         user_dict = dict(username=form.username.data, email=form.email.data)
         user = users.create(user_dict, form.password.data)
+        clubsessions.join_all_future_sessions(user)
         flash("Thank you for signing up!")
         login_user(user)
         return redirect(url_for("lobby.lobby"))
@@ -90,6 +87,4 @@ def reset_password(token):
         flash("You successfully reset your password.")
         return redirect(url_for("auth.login"))
 
-    return render_template(
-        "reset_password.html", title="Reset My Password", form=form
-    )
+    return render_template("reset_password.html", title="Reset My Password", form=form)

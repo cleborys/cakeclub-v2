@@ -1,0 +1,12 @@
+Dear {{ names }},
+
+The cakeclub is calling upon you to bake this week on {{ session.date }}!
+Currently, we are expecting {{ participant_nbr }} hungry mouths to
+feed.
+
+If you can't bake for any reason, you should quickly arrange a replacement!
+You can unregister on {{ url_for('main.index', _external=True) }}
+
+Kindest regards,
+Your Impartial Overlord
+(on behalf of the Cake Club)
