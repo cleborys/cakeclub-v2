@@ -136,6 +136,8 @@ class MemberTable extends React.Component{
         return (
           <div>
             <h4 className="card-title text-primary">Cakeclub Members</h4>
+            The values below take past sessions,
+              as well as all currently scheduled future sessions into account.
             <table className="table table-hover table-sm">
                 <thead><tr>
                     <th className="w-40">Name</th>
