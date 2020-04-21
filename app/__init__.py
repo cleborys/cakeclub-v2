@@ -23,14 +23,14 @@ load_dotenv(os.path.join(basedir, ".env"))
 
 class Config:
     MAIL_SERVER = os.environ.get("MAIL_SERVER") or None
-    MAIL_PORT = int(os.environ.get("MAIL_PORT") or 25)
+    MAIL_PORT = int(os.environ.get("MAIL_PORT", 25))
     MAIL_USE_TLS = 1
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME") or None
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD") or None
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL") or None
     PROFILE = int(os.environ.get("PROFILE", 0))
 
-    LOG_TO_STDOUT = os.environ.get("LOG_TO_STDOUT")
+    LOG_TO_STDOUT = os.environ.get("LOG_TO_STDOUT") or None
 
 
 class DevelopmentConfig(Config):
@@ -42,7 +42,7 @@ class DevelopmentConfig(Config):
     PROFILE = True
 
 
-class HerokuConfig(Config):
+class DeploymentConfig(Config):
     SECRET_KEY = os.environ["SECRET_KEY"]
     ADMIN_KEY = os.environ["ADMIN_KEY"]
     REGISTRATION_KEY = os.environ.get("REGISTRATION_KEY")

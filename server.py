@@ -1,7 +1,7 @@
-from app import create_app, db, HerokuConfig
+from app import create_app, db, DeploymentConfig
 from app.models import User
 
-app = create_app(HerokuConfig)
+app = create_app(DeploymentConfig)
 
 
 @app.shell_context_processor
