@@ -1,0 +1,147 @@
+# place at /etc/nginx/sites-enabled/cakeclub
+server {
+	listen 80;
+	server_name <DOMAIN NAME>;
+    # directory to pass to certbot for webhook
+	location ~ /.well-known {
+		root /home/<USER>/letsencrypt;
+	}
+
+	location / {
+		# redirect to https
+		return 301 https://$host$request_uri;
+	}
+}
+server {
+	listen 443 ssl;
+	server_name <DOMAIN NAME>;
+
+	# SSL config
+	ssl_certificate /etc/letsencrypt/live/<DOMAIN NAME>/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/<DOMAIN NAME>/privkey.pem;
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+	ssl_session_timeout 1d;
+	ssl_session_cache shared:SSL:50m;
+	ssl_stapling on;
+	ssl_stapling_verify on;
+	add_header Strict-Transport-Security max-age=15768000;
+	
+
+	# error logs to /var/log
+	access_log /var/log/cakeclub_nginx_access.log;
+	error_log /var/log/cakeclub_nginx_error.log;
+
+	# special proxy rules for socket.io endpoint
+	# to make websockets work
+	location /socket.io {
+		proxy_pass http://127.0.0.1:8000/socket.io;
+		proxy_http_version 1.1;
+		proxy_redirect off;
+		proxy_buffering off;
+
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "Upgrade";
+
+		# remove origin header
+		# so flask-SocketIO CORS doesn't complain
+		proxy_set_header Origin "";
+	}
+
+	location / {
+		proxy_pass http://127.0.0.1:8000;
+		proxy_redirect off;
+
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	}
+
+	location /static {
+		# static files served directly
+        # from cloned git repository
+		alias /home/<USER>/cakeclub-v2/app/static;
+		expires 30d;
+	}
+
+    location /favicon.ico {
+		alias /home/<USER>/cakeclub-v2/app/static/images/favicon.ico;
+    }
+
+    # directory to pass to certbot for webhook
+    # renewal might need https (?)
+	location ~ /.well-known {
+		root /home/<USER>/letsencrypt;
+	}
+
+	location / {
+		# redirect to https
+		return 301 https://$host$request_uri;
+	}
+}
+server {
+	listen 443 ssl;
+	server_name <DOMAIN NAME>;
+
+	# SSL config
+	ssl_certificate /etc/letsencrypt/live/<DOMAIN NAME>/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/<DOMAIN NAME>/privkey.pem;
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+	ssl_session_timeout 1d;
+	ssl_session_cache shared:SSL:50m;
+	ssl_stapling on;
+	ssl_stapling_verify on;
+	add_header Strict-Transport-Security max-age=15768000;
+	
+
+	# error logs to /var/log
+	access_log /var/log/cakeclub_nginx_access.log;
+	error_log /var/log/cakeclub_nginx_error.log;
+
+	# special proxy rules for socket.io endpoint
+	# to make websockets work
+	location /socket.io {
+		proxy_pass http://127.0.0.1:8000/socket.io;
+		proxy_http_version 1.1;
+		proxy_redirect off;
+		proxy_buffering off;
+
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "Upgrade";
+
+		# remove origin header
+		# so flask-SocketIO CORS doesn't complain
+		proxy_set_header Origin "";
+	}
+
+	location / {
+		proxy_pass http://127.0.0.1:8000;
+		proxy_redirect off;
+
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	}
+
+	location /static {
+		# static files served directly
+        # from cloned git repository
+		alias /home/<USER>/cakeclub-v2/app/static;
+		expires 30d;
+	}
+
+	location ~ /.well-known {
+		root /home/<USER>/letsencrypt;
+	}
+}
+	location ~ /.well-known {
+		root /home/<USER>/letsencrypt;
+	}
+}
