@@ -1,25 +1,33 @@
-# Deployment
-Start a postgres container:
+# Cakeclub
+This is the source code for Copenhagen university [cake club](https://cakeclub.borys.dk).
+
+## Development Setup
 ```
-docker run --name postgres -d \
--e POSTGRES_PASSWORD=<your-database-key> \
--e POSTGRES_USER=cakelover \
-postgres:12
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
-and connect it to a server container:
+You can leave the virtual environment via `deactivate`
+and re-enter it by running `source venv/bin/activate`.
+
+## Tests
+Run
 ```
-docker run --name cakeclub -d \
--p 8000:5000 \
--e SECRET_KEY=<your-secret-key> \
--e ADMIN_KEY=<your-admin-key> \
--e REGISTRATION_KEY=<your-registration-token> \
--e MAIL_SERVER=smtp.googlemail.com \
--e MAIL_PORT=587 \
--e MAIL_USE_TLS=1 \
--e MAIL_USERNAME=<gmail-newsletter-account> \
--e MAIL_PASSWORD=<gmail-password> \
--e ADMIN_EMAIL=<admin-email> \
---link postgres:dbserver \
--e DATABASE_URL=postgres://cakelover:<your-database-key>@dbserver/cakelover \
-cleborys/cakeclub:latest
+pytest .
 ```
+from inside your virtual environment
+
+## Deployment
+To deploy with a postgres database,
+add your credentials to `web-variables.env`
+and run
+```
+docker-compose up
+```
+Note that this will deploy the public cakeclub image on dockerhub,
+not including any local modifications.
+The service will listen internally on port 8000.
+To make it publicly accessible, 
+it is recommended to run an nginx reverse proxy
+with the configuration provided in `nginx_config`,
+filling in the appropriate details.
